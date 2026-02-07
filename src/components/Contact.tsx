@@ -1,7 +1,63 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Send, Mail, User, MessageSquare, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
+import { Send, Mail, User, MessageSquare, AlertCircle, Loader2, PartyPopper } from 'lucide-react';
 
 type FormStatus = 'idle' | 'sending' | 'success' | 'error';
+
+// Success Modal Component
+const SuccessModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onClose }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fadeIn">
+      {/* Backdrop */}
+      <div 
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        onClick={onClose}
+      />
+      
+      {/* Modal */}
+      <div className="relative bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-8 shadow-2xl border-2 border-blue-500 max-w-md w-full transform animate-bounce-in">
+        {/* Confett Animation */}
+        <div className="absolute inset-0 overflow-hidden rounded-2xl pointer-events-none">
+          <div className="confetti"></div>
+          <div className="confetti"></div>
+          <div className="confetti"></div>
+          <div className="confetti"></div>
+          <div className="confetti"></div>
+        </div>
+
+        {/* Content */}
+        <div className="relative text-center">
+          {/* Icon */}
+          <div className="mx-auto w-20 h-20 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center mb-4 animate-scale-in shadow-lg">
+            <PartyPopper size={40} className="text-white" />
+          </div>
+
+          {/* Heading */}
+          <h2 className="text-4xl font-bold text-white mb-3 animate-slide-up">
+            🎉 Hurray! 🎉
+          </h2>
+
+          {/* Message */}
+          <p className="text-xl text-slate-300 mb-2 animate-slide-up" style={{ animationDelay: '0.1s' }}>
+            Message sent successfully!
+          </p>
+          <p className="text-lg text-slate-400 mb-6 animate-slide-up" style={{ animationDelay: '0.2s' }}>
+            I'll get back to you soon. 😊
+          </p>
+
+          {/* Close Button */}
+          <button
+            onClick={onClose}
+            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg"
+          >
+            Awesome!
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const Contact: React.FC = () => {
   const sectionRef = useRef<HTMLElement>(null);
@@ -13,6 +69,7 @@ const Contact: React.FC = () => {
   });
   const [status, setStatus] = useState<FormStatus>('idle');
   const [errorMsg, setErrorMsg] = useState('');
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   useEffect(() => {
     const handleIntersection = (entries: IntersectionObserverEntry[]) => {
@@ -71,10 +128,14 @@ const Contact: React.FC = () => {
       if (!data.ok && data.error) throw new Error(data.error);
 
       setStatus('success');
+      setShowSuccessModal(true);
       setFormData({ name: '', email: '', subject: '', message: '' });
 
-      // Reset success message after 5 seconds
-      setTimeout(() => setStatus('idle'), 5000);
+      // Auto close modal after 4 seconds
+      setTimeout(() => {
+        setShowSuccessModal(false);
+        setStatus('idle');
+      }, 4000);
     } catch (err: unknown) {
       setStatus('error');
       setErrorMsg(err instanceof Error ? err.message : 'Failed to send message. Please try again.');
@@ -206,14 +267,7 @@ const Contact: React.FC = () => {
               )}
             </button>
 
-            {/* Status Messages */}
-            {status === 'success' && (
-              <div className="flex items-center gap-2 p-4 bg-green-900/40 border border-green-700 rounded-lg text-green-300">
-                <CheckCircle size={20} />
-                <span>Message sent successfully! I'll get back to you soon.</span>
-              </div>
-            )}
-
+            {/* Error Message */}
             {status === 'error' && (
               <div className="flex items-center gap-2 p-4 bg-red-900/40 border border-red-700 rounded-lg text-red-300">
                 <AlertCircle size={20} />
@@ -223,6 +277,15 @@ const Contact: React.FC = () => {
           </form>
         </div>
       </div>
+
+      {/* Success Modal */}
+      <SuccessModal 
+        isOpen={showSuccessModal} 
+        onClose={() => {
+          setShowSuccessModal(false);
+          setStatus('idle');
+        }} 
+      />
     </section>
   );
 };

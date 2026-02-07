@@ -90,12 +90,6 @@ const OngoingProjects: React.FC = () => {
                     <span>{project.status}</span>
                   </div>
                 </div>
-                <div className="h-1 w-full bg-slate-700">
-                  <div
-                    className="h-full bg-blue-400 rounded-r-full"
-                    style={{ width: `${project.progress ?? 75}%` }}
-                  ></div>
-                </div>
               </div>
             ))}
           </div>

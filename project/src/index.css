@@ -1,0 +1,176 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: linear-gradient(to right, #0f172a, #1e293b);
+  color: #f8fafc;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Poppins', sans-serif;
+}
+
+/* Star background animation */
+@keyframes twinkle {
+  0% { opacity: 0.2; }
+  50% { opacity: 1; }
+  100% { opacity: 0.2; }
+}
+
+@keyframes move {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-2000px); }
+}
+
+.stars {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    radial-gradient(2px 2px at 20px 30px, #ffffff, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 40px 70px, #ffffff, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 60px 110px, #ffffff, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 80px 150px, #ffffff, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 100px 190px, #ffffff, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 120px 230px, #ffffff, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 140px 270px, #ffffff, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 160px 310px, #ffffff, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 180px 350px, #ffffff, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 200px 390px, #ffffff, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 220px 430px, #ffffff, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 240px 470px, #ffffff, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 260px 510px, #ffffff, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 280px 550px, #ffffff, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 300px 590px, #ffffff, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 320px 630px, #ffffff, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 340px 670px, #ffffff, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 360px 710px, #ffffff, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 380px 750px, #ffffff, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 400px 790px, #ffffff, rgba(0,0,0,0));
+  background-repeat: repeat;
+  background-size: 500px 500px;
+  animation: move 150s linear infinite;
+  opacity: 0.3;
+}
+
+.twinkle {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    radial-gradient(3px 3px at 50px 50px, rgba(111, 168, 220, 0.8), rgba(0,0,0,0)),
+    radial-gradient(3px 3px at 100px 150px, rgba(94, 143, 246, 0.8), rgba(0,0,0,0)),
+    radial-gradient(3px 3px at 150px 250px, rgba(59, 130, 246, 0.8), rgba(0,0,0,0)),
+    radial-gradient(3px 3px at 200px 350px, rgba(37, 99, 235, 0.8), rgba(0,0,0,0)),
+    radial-gradient(3px 3px at 250px 450px, rgba(147, 197, 253, 0.8), rgba(0,0,0,0)),
+    radial-gradient(3px 3px at 300px 550px, rgba(219, 234, 254, 0.8), rgba(0,0,0,0)),
+    radial-gradient(3px 3px at 350px 650px, rgba(191, 219, 254, 0.8), rgba(0,0,0,0)),
+    radial-gradient(3px 3px at 400px 750px, rgba(96, 165, 250, 0.8), rgba(0,0,0,0));
+  background-repeat: repeat;
+  background-size: 700px 700px;
+  animation: twinkle 4s ease-in-out infinite, move 120s linear infinite;
+  opacity: 0.4;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scaleOnClick {
+  0% { transform: scale(1); }
+  50% { transform: scale(0.95); }
+  100% { transform: scale(1); }
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+.clicked {
+  animation: scaleOnClick 0.3s ease-in-out;
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.8s ease forwards;
+}
+
+.animation-delay-200 {
+  animation-delay: 0.2s;
+}
+
+.animation-delay-400 {
+  animation-delay: 0.4s;
+}
+
+.animation-delay-600 {
+  animation-delay: 0.6s;
+}
+
+/* Hover effects */
+.hover-scale {
+  transition: transform 0.3s ease;
+}
+
+.hover-scale:hover {
+  transform: scale(1.05);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1e293b;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #3B82F6;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #2563EB;
+}
+
+/* Click animation for elements */
+.clickable {
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.clickable:active {
+  transform: scale(0.95);
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}

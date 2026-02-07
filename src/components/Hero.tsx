@@ -42,7 +42,7 @@ const Hero: React.FC = () => {
               <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">
                 <span className="typing-effect">Hi, I'm <span className="text-blue-400">Harshit</span></span>
                 <br />
-                <span className="text-blue-400 typing-effect" style={{ animationDelay: '3.5s' }}>Kulkarni</span>
+                <span className="text-blue-400 typing-effect" style={{ animationDelay: '2s' }}>Kulkarni</span>
               </h1>
             </div>
             <div className="reveal-item opacity-0 transition-opacity duration-1000 ease-out mb-8">

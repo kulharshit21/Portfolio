@@ -33,7 +33,7 @@ const projects: Project[] = [
     description: "Full-stack attendance system with role-based dashboards, automated email alerts, and MySQL backend; reduced manual effort by ~60%.",
     technologies: ["PHP", "HTML/CSS", "MySQL"],
     image: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=600&q=80",
-    githubLink: "https://github.com/kulharshit21"
+    githubLink: "https://github.com/kulharshit21/AttendenceApp"
   },
   {
     id: 4,

@@ -54,16 +54,40 @@ const Education: React.FC = () => {
       observer.observe(sectionRef.current);
     }
 
+    // Observe individual education cards for staggered animation
+    const educationCards = document.querySelectorAll('.education-card');
+    const cardObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            // Get the card index for staggered delay
+            const cardIndex = parseInt(entry.target.getAttribute('data-index') || '0');
+            setTimeout(() => {
+              entry.target.classList.add('animate-slide-up');
+            }, cardIndex * 150); // Stagger by 150ms
+          }
+        });
+      },
+      { threshold: 0.3 }
+    );
+
+    educationCards.forEach((card) => {
+      cardObserver.observe(card);
+    });
+
     return () => {
       if (sectionRef.current) {
         observer.unobserve(sectionRef.current);
       }
+      educationCards.forEach((card) => {
+        cardObserver.unobserve(card);
+      });
     };
   }, []);
 
   return (
-    <section 
-      id="education" 
+    <section
+      id="education"
       ref={sectionRef}
       className="py-16 bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 opacity-0"
     >
@@ -77,10 +101,11 @@ const Education: React.FC = () => {
 
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            {education.map((edu) => (
-              <div 
+            {education.map((edu, index) => (
+              <div
                 key={edu.id}
-                className="bg-slate-800 rounded-lg p-5 shadow-md border border-slate-700 hover:shadow-lg transition-all duration-300 text-center"
+                data-index={index}
+                className="education-card scroll-animate bg-slate-800 rounded-lg p-5 shadow-md border border-slate-700 hover:shadow-lg transition-all duration-300 text-center"
               >
                 <GraduationCap size={28} className="mx-auto mb-3 text-blue-400" />
                 <h3 className="text-base font-bold text-white mb-1">{edu.degree}</h3>

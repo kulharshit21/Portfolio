@@ -82,16 +82,39 @@ const Projects: React.FC = () => {
       observer.observe(sectionRef.current);
     }
 
+    // Observe individual project cards for staggered animation
+    const projectCards = document.querySelectorAll('.project-card');
+    const cardObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry, index) => {
+          if (entry.isIntersecting) {
+            // Alternate between left and right based on card index
+            const cardIndex = parseInt(entry.target.getAttribute('data-index') || '0');
+            const animationClass = cardIndex % 2 === 0 ? 'animate-slide-left' : 'animate-slide-right';
+            entry.target.classList.add(animationClass);
+          }
+        });
+      },
+      { threshold: 0.2 }
+    );
+
+    projectCards.forEach((card) => {
+      cardObserver.observe(card);
+    });
+
     return () => {
       if (sectionRef.current) {
         observer.unobserve(sectionRef.current);
       }
+      projectCards.forEach((card) => {
+        cardObserver.unobserve(card);
+      });
     };
   }, []);
 
   return (
-    <section 
-      id="projects" 
+    <section
+      id="projects"
       ref={sectionRef}
       className="py-24 bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 text-white opacity-0"
     >
@@ -105,14 +128,15 @@ const Projects: React.FC = () => {
 
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {projects.map(project => (
-              <div 
+            {projects.map((project, index) => (
+              <div
                 key={project.id}
-                className="bg-slate-800 rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 border border-slate-700 group transform hover:scale-105 hover:rotate-1"
+                data-index={index}
+                className="project-card scroll-animate bg-slate-800 rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 border border-slate-700 group transform hover:scale-105 hover:rotate-1"
               >
                 <div className="relative h-48 overflow-hidden">
-                  <img 
-                    src={project.image} 
+                  <img
+                    src={project.image}
                     alt={project.title}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                   />
@@ -120,7 +144,7 @@ const Projects: React.FC = () => {
                     <div className="p-4 text-white w-full">
                       <div className="flex flex-wrap gap-2 mb-3">
                         {project.technologies.map((tech, index) => (
-                          <span 
+                          <span
                             key={index}
                             className="px-3 py-1 bg-blue-500 rounded-md text-sm font-bold text-white shadow-lg"
                           >

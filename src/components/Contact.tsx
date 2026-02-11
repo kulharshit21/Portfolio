@@ -10,11 +10,11 @@ const SuccessModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOp
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fadeIn">
       {/* Backdrop */}
-      <div 
+      <div
         className="absolute inset-0 bg-black/60 backdrop-blur-sm"
         onClick={onClose}
       />
-      
+
       {/* Modal */}
       <div className="relative bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-8 shadow-2xl border-2 border-blue-500 max-w-md w-full transform animate-bounce-in">
         {/* Confett Animation */}
@@ -98,11 +98,44 @@ const Contact: React.FC = () => {
   }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    const { name, value } = e.target;
+
+    // Apply max length validation
+    const maxLengths: Record<string, number> = {
+      name: 100,
+      email: 100,
+      subject: 150,
+      message: 1000
+    };
+
+    if (value.length <= maxLengths[name]) {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
+  };
+
+  const validateEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Client-side validation
+    if (!validateEmail(formData.email)) {
+      setStatus('error');
+      setErrorMsg('Please enter a valid email address.');
+      setTimeout(() => setStatus('idle'), 3000);
+      return;
+    }
+
+    if (formData.message.length < 10) {
+      setStatus('error');
+      setErrorMsg('Message must be at least 10 characters long.');
+      setTimeout(() => setStatus('idle'), 3000);
+      return;
+    }
+
     setStatus('sending');
     setErrorMsg('');
 
@@ -233,18 +266,26 @@ const Contact: React.FC = () => {
 
             {/* Message */}
             <div>
-              <label htmlFor="message" className="block text-sm font-medium text-slate-300 mb-2">
-                Message
-              </label>
+              <div className="flex justify-between items-center mb-2">
+                <label htmlFor="message" className="block text-sm font-medium text-slate-300">
+                  Message
+                </label>
+                <span className={`text-sm ${formData.message.length > 900 ? 'text-yellow-400' : 'text-slate-500'
+                  }`}>
+                  {formData.message.length}/1000
+                </span>
+              </div>
               <textarea
                 id="message"
                 name="message"
                 rows={5}
                 required
+                minLength={10}
                 value={formData.message}
                 onChange={handleChange}
                 placeholder="Write your message here..."
                 className="w-full px-4 py-3 bg-slate-900/60 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
+                aria-describedby="message-counter"
               />
             </div>
 
@@ -279,12 +320,12 @@ const Contact: React.FC = () => {
       </div>
 
       {/* Success Modal */}
-      <SuccessModal 
-        isOpen={showSuccessModal} 
+      <SuccessModal
+        isOpen={showSuccessModal}
         onClose={() => {
           setShowSuccessModal(false);
           setStatus('idle');
-        }} 
+        }}
       />
     </section>
   );

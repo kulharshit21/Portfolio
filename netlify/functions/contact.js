@@ -1,5 +1,9 @@
 import nodemailer from 'nodemailer';
 
+// Simple in-memory rate limiting (resets on function cold start)
+const rateLimitMap = new Map();
+const RATE_LIMIT_WINDOW = 60000; // 1 minute
+
 export async function handler(event) {
   // Only allow POST
   if (event.httpMethod !== 'POST') {
@@ -12,6 +16,31 @@ export async function handler(event) {
     'Access-Control-Allow-Headers': 'Content-Type',
     'Content-Type': 'application/json',
   };
+
+  // Rate limiting check
+  const clientIP = event.headers['x-forwarded-for'] || event.headers['x-real-ip'] || 'unknown';
+  const now = Date.now();
+  const lastSubmission = rateLimitMap.get(clientIP);
+
+  if (lastSubmission && (now - lastSubmission) < RATE_LIMIT_WINDOW) {
+    return {
+      statusCode: 429,
+      headers,
+      body: JSON.stringify({
+        ok: false,
+        error: 'Too many requests. Please wait a minute before submitting again.'
+      }),
+    };
+  }
+
+  rateLimitMap.set(clientIP, now);
+
+  // Clean up old entries (older than 5 minutes)
+  for (const [ip, timestamp] of rateLimitMap.entries()) {
+    if (now - timestamp > 300000) {
+      rateLimitMap.delete(ip);
+    }
+  }
 
   try {
     const { name, email, subject, message } = JSON.parse(event.body);

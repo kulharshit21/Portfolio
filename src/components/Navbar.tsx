@@ -52,16 +52,15 @@ const Navbar: React.FC = () => {
   };
 
   return (
-    <header 
-      className={`fixed top-0 w-full z-40 transition-all duration-300 ${
-        scrolled ? 'bg-slate-900/90 backdrop-blur-sm shadow-lg shadow-slate-900/20' : 'bg-transparent'
-      }`}
+    <header
+      className={`fixed top-0 w-full z-40 transition-all duration-300 ${scrolled ? 'bg-slate-900/90 backdrop-blur-sm shadow-lg shadow-slate-900/20' : 'bg-transparent'
+        }`}
     >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <nav className="flex items-center justify-between h-16 md:h-20">
           <div className="flex-shrink-0">
-            <a 
-              href="#home" 
+            <a
+              href="#home"
               className="text-xl font-bold text-white cursor-pointer hover:text-blue-400 transition-colors"
               onClick={(e) => {
                 e.preventDefault();
@@ -79,11 +78,10 @@ const Navbar: React.FC = () => {
                 <li key={item.label}>
                   <a
                     href={item.target}
-                    className={`text-sm font-medium transition-colors duration-300 cursor-pointer ${
-                      activeSection === item.target.substring(1)
+                    className={`text-sm font-medium transition-colors duration-300 cursor-pointer ${activeSection === item.target.substring(1)
                         ? 'text-blue-400'
                         : 'text-gray-300 hover:text-blue-400'
-                    }`}
+                      }`}
                     onClick={(e) => {
                       e.preventDefault();
                       scrollToSection(item.target);
@@ -122,23 +120,35 @@ const Navbar: React.FC = () => {
         </nav>
       </div>
 
+      {/* Mobile Menu Backdrop */}
+      {isOpen && (
+        <div
+          className="md:hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-30"
+          onClick={() => setIsOpen(false)}
+          aria-hidden="true"
+        ></div>
+      )}
+
       {/* Mobile Menu */}
-      <div 
-        className={`md:hidden absolute top-16 left-0 right-0 bg-slate-900 shadow-lg transition-transform duration-300 ease-in-out transform ${
-          isOpen ? 'translate-x-0' : 'translate-x-full'
-        }`}
+      <div
+        className={`md:hidden fixed top-16 right-0 w-64 h-[calc(100vh-4rem)] bg-slate-900/95 backdrop-blur-md shadow-2xl transition-transform duration-300 ease-in-out transform z-40 ${isOpen ? 'translate-x-0' : 'translate-x-full'
+          }`}
       >
-        <div className="px-4 py-2">
-          <ul className="flex flex-col space-y-4 py-4">
-            {navItems.map((item) => (
-              <li key={item.label}>
+        <div className="px-4 py-6 h-full overflow-y-auto">
+          <ul className="flex flex-col space-y-2">
+            {navItems.map((item, index) => (
+              <li
+                key={item.label}
+                style={{
+                  animation: isOpen ? `slideIn 0.3s ease-out ${index * 0.05}s both` : 'none'
+                }}
+              >
                 <a
                   href={item.target}
-                  className={`block px-4 py-2 text-base font-medium ${
-                    activeSection === item.target.substring(1)
-                      ? 'text-blue-400'
-                      : 'text-gray-300 hover:text-blue-400'
-                  }`}
+                  className={`block px-4 py-3 rounded-lg text-base font-medium transition-all duration-200 ${activeSection === item.target.substring(1)
+                      ? 'bg-blue-600 text-white shadow-lg'
+                      : 'text-gray-300 hover:bg-slate-800 hover:text-blue-400'
+                    }`}
                   onClick={(e) => {
                     e.preventDefault();
                     scrollToSection(item.target);
@@ -148,8 +158,19 @@ const Navbar: React.FC = () => {
                 </a>
               </li>
             ))}
-
           </ul>
+
+          {/* Mobile Resume Link */}
+          <div className="mt-6 pt-6 border-t border-slate-700">
+            <a
+              href="https://drive.google.com/file/d/1xP4q23bT9r-APigaa04NLpBbysmoCRR_/view?usp=sharing"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block px-4 py-3 rounded-lg text-center bg-blue-600 text-white font-medium hover:bg-blue-700 transition-colors"
+            >
+              View Resume
+            </a>
+          </div>
         </div>
       </div>
     </header>

@@ -54,7 +54,7 @@ export async function handler(event) {
   try {
     const { name, email, subject, message } = JSON.parse(event.body);
 
-    if (!name || !email || !subject || !message) {
+    if (!name?.trim() || !email?.trim() || !subject?.trim() || !message?.trim()) {
       return {
         statusCode: 400,
         headers,
@@ -62,10 +62,19 @@ export async function handler(event) {
       };
     }
 
-    const safeName = escapeHtml(name);
-    const safeEmail = escapeHtml(email);
-    const safeSubject = escapeHtml(subject);
-    const safeMessage = escapeHtml(message).replace(/\n/g, '<br/>');
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return {
+        statusCode: 400,
+        headers,
+        body: JSON.stringify({ ok: false, error: 'Invalid email address' }),
+      };
+    }
+
+    const safeName = escapeHtml(name.trim());
+    const safeEmail = escapeHtml(email.trim());
+    const safeSubject = escapeHtml(subject.trim());
+    const safeMessage = escapeHtml(message.trim()).replace(/\n/g, '<br/>');
 
     const transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST,

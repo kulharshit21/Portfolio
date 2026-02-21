@@ -9,6 +9,15 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
   port: +process.env.SMTP_PORT,
@@ -21,21 +30,31 @@ const transporter = nodemailer.createTransport({
 
 app.post('/api/contact', async (req, res) => {
   const { name, email, subject, message } = req.body;
+
+  if (!name || !email || !subject || !message) {
+    return res.status(400).json({ ok: false, error: 'All fields are required' });
+  }
+
+  const safeName = escapeHtml(name);
+  const safeEmail = escapeHtml(email);
+  const safeSubject = escapeHtml(subject);
+  const safeMessage = escapeHtml(message).replace(/\n/g, '<br/>');
+
   try {
     await transporter.sendMail({
       from: `Portfolio Contact <${process.env.SMTP_USER}>`,
       to: process.env.RECIPIENT,
-      subject: `[Portfolio] ${subject} (from ${name})`,
+      subject: `[Portfolio] ${safeName} - ${safeSubject}`,
       html: `
-        <p><strong>Name:</strong> ${name}</p>
-        <p><strong>Email:</strong> ${email}</p>
-        <p><strong>Message:</strong><br/>${message.replace(/\n/g, '<br/>')}</p>
+        <p><strong>Name:</strong> ${safeName}</p>
+        <p><strong>Email:</strong> ${safeEmail}</p>
+        <p><strong>Message:</strong><br/>${safeMessage}</p>
       `
     });
     res.json({ ok: true });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ ok: false, error: error.message });
+    res.status(500).json({ ok: false, error: 'Failed to send email. Please try again later.' });
   }
 });
 

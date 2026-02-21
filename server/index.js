@@ -25,6 +25,7 @@ function escapeHtml(str) {
 // Simple in-memory rate limiting
 const rateLimitMap = new Map();
 const RATE_LIMIT_WINDOW = 60000; // 1 minute
+const CLEANUP_THRESHOLD = 5 * RATE_LIMIT_WINDOW; // 5 minutes
 
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
@@ -53,7 +54,7 @@ app.post('/api/contact', async (req, res) => {
 
   // Clean up old entries
   for (const [ip, timestamp] of rateLimitMap.entries()) {
-    if (now - timestamp > 300000) {
+    if (now - timestamp > CLEANUP_THRESHOLD) {
       rateLimitMap.delete(ip);
     }
   }
@@ -66,7 +67,7 @@ app.post('/api/contact', async (req, res) => {
   }
 
   // Email format validation
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
   if (!emailRegex.test(email)) {
     return res.status(400).json({ ok: false, error: 'Invalid email address' });
   }

@@ -53,10 +53,11 @@ export async function handler(event) {
       };
     }
 
+    const smtpPort = +process.env.SMTP_PORT || 465;
     const transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST,
-      port: +process.env.SMTP_PORT,
-      secure: true,
+      port: smtpPort,
+      secure: smtpPort === 465,
       auth: {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS,
@@ -126,7 +127,7 @@ export async function handler(event) {
       body: JSON.stringify({ ok: true }),
     };
   } catch (error) {
-    console.error('Contact function error:', error);
+    console.error('Contact function error:', error.message ?? error);
     return {
       statusCode: 500,
       headers,

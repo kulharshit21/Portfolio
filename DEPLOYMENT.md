@@ -8,7 +8,7 @@ This guide will help you deploy your portfolio to Netlify with a fully functiona
 
 1. **GitHub Account** (to push your code)
 2. **Netlify Account** (free at [netlify.com](https://netlify.com))
-3. **Gmail App Password** (already configured: `mwwi pcqj srfr drur`)
+3. **Gmail App Password** (generate one at [myaccount.google.com/apppasswords](https://myaccount.google.com/apppasswords))
 
 ---
 
@@ -101,7 +101,7 @@ Your contact form **will NOT work** without these environment variables!
    | `SMTP_HOST` | `smtp.gmail.com` |
    | `SMTP_PORT` | `465` |
    | `SMTP_USER` | `kulharshit21@gmail.com` |
-   | `SMTP_PASS` | `mwwi pcqj srfr drur` |
+   | `SMTP_PASS` | `<your Gmail App Password>` |
    | `RECIPIENT` | `kulharshit21@gmail.com` |
 
 3. **⚠️ IMPORTANT**: After adding environment variables, you MUST redeploy:
@@ -156,7 +156,7 @@ Your contact form **will NOT work** without these environment variables!
 
 ### Issue 2: Emails not sending
 **Solution**:
-- Verify Gmail App Password is correct: `mwwi pcqj srfr drur`
+- Verify Gmail App Password is correct (generate a new one at [myaccount.google.com/apppasswords](https://myaccount.google.com/apppasswords))
 - Ensure `SMTP_PORT` is `465` (not 587)
 - Check if Gmail account has "Less secure app access" enabled (if needed)
 

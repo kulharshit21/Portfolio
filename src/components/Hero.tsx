@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { lazy, Suspense, useRef } from 'react';
 import { motion, useMotionTemplate, useMotionValue, useSpring } from 'framer-motion';
 import { ChevronDown, Globe, Mail, Phone } from 'lucide-react';
 import HarshitPhoto from '../Harshit Photo.jpg';
@@ -136,7 +136,9 @@ const Hero: React.FC = () => {
       className="group/hero relative isolate min-h-[100svh] min-h-screen scroll-mt-24 overflow-hidden bg-bg py-12 font-dm text-foreground sm:py-16 md:scroll-mt-28 md:py-20"
       aria-label="Hero section"
     >
-      <HeroParticleCanvas mouse={particleMouse} />
+      <Suspense fallback={null}>
+        <HeroParticleCanvas mouse={particleMouse} />
+      </Suspense>
 
       <div
         className="pointer-events-none absolute inset-0 z-0 overflow-hidden"
@@ -300,6 +302,33 @@ const Hero: React.FC = () => {
                 <span className="absolute bottom-0 left-0 h-1 w-full origin-left bg-accent-2" />
               </span>
             </h2>
+
+            <div className="mb-6 grid grid-cols-3 gap-3 border-b border-border/50 pb-6 sm:gap-4">
+              <div className="text-center">
+                <p className="font-display text-2xl font-normal text-accent-2 md:text-3xl">
+                  6
+                </p>
+                <p className="mt-1 font-dm text-xs text-muted md:text-sm">
+                  Projects
+                </p>
+              </div>
+              <div className="text-center">
+                <p className="font-display text-2xl font-normal text-accent-2 md:text-3xl">
+                  2+
+                </p>
+                <p className="mt-1 font-dm text-xs text-muted md:text-sm">
+                  Years Experience
+                </p>
+              </div>
+              <div className="text-center">
+                <p className="font-display text-2xl font-normal text-accent-2 md:text-3xl">
+                  2
+                </p>
+                <p className="mt-1 font-dm text-xs text-muted md:text-sm">
+                  Publications
+                </p>
+              </div>
+            </div>
 
             <div className="space-y-6">
               <div>

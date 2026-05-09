@@ -4,6 +4,7 @@ import { ChevronDown, Globe, Mail, Phone } from 'lucide-react';
 import HarshitPhoto from '../Harshit Photo.jpg';
 import { heroContent } from '../lib/data';
 import { cn, motionEase, viewportOnce } from '../lib/utils';
+import { lenisScrollToElement, NAV_SCROLL_OFFSET_PX } from '../lib/lenisRoot';
 import { HeroParticleCanvas } from './ParticleField';
 
 type NamePart = { readonly text: string; readonly emphasized: boolean };
@@ -104,9 +105,9 @@ function MagneticGetInTouch({
         whileTap={{ scale: 0.98 }}
         transition={{ type: 'spring', stiffness: 400, damping: 22 }}
         onClick={() => {
-          document
-            .getElementById('contact')
-            ?.scrollIntoView({ behavior: 'smooth' });
+          lenisScrollToElement('#contact', {
+            offset: -NAV_SCROLL_OFFSET_PX,
+          });
         }}
         className="magnetic-cta-btn relative overflow-hidden rounded-full bg-accent-2 px-[1.65rem] py-[0.825rem] font-dm text-[1.05rem] font-medium text-bg shadow-md"
         aria-label="Scroll to contact section"

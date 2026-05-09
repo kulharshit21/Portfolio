@@ -19,8 +19,12 @@ import { motionEase, cn } from '../lib/utils';
 import {
   getLenisScrollY,
   lenisScrollToElement,
+  NAV_SCROLL_OFFSET_PX,
   subscribeLenisScroll,
 } from '../lib/lenisRoot';
+
+/** ~fixed header + padding so the labeled section matches what the user sees. */
+const SCROLL_ACTIVE_OFFSET_PX = NAV_SCROLL_OFFSET_PX;
 
 type NavItem = {
   label: string;
@@ -56,9 +60,6 @@ const navItems: readonly NavItem[] = [
 const NAV_SECTION_IDS = navItems.map((item) =>
   item.target.replace('#', '')
 ) as readonly string[];
-
-/** ~fixed header + padding so the labeled section matches what the user sees. */
-const SCROLL_ACTIVE_OFFSET_PX = 112;
 
 const resumeUrl =
   'https://drive.google.com/file/d/1-mk6PvKIvfkX3H4VDd8DaGOC3oGzlkwp/view?usp=sharing';

@@ -1,5 +1,8 @@
 import type Lenis from 'lenis';
 
+/** Fixed header allowance for in-page anchor targets (matches scroll-spy). */
+export const NAV_SCROLL_OFFSET_PX = 112;
+
 type LenisScrollListener = (lenis: Lenis) => void;
 
 let lenisRef: Lenis | null = null;

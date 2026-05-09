@@ -110,6 +110,17 @@ function AppContent() {
   }, []);
 
   useGSAP(() => {
+    const prefersReduced =
+      window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
+    if (prefersReduced) {
+      gsap.set('[data-site-nav]', { y: 0, opacity: 1, clearProps: 'transform' });
+      gsap.set('.hero-name .hero-char', { y: 0, opacity: 1 });
+      gsap.set('.hero-role', { x: 0, opacity: 1 });
+      gsap.set('.hero-photo', { scale: 1, opacity: 1 });
+      gsap.set('.hero-cta', { y: 0, opacity: 1 });
+      return;
+    }
+
     gsap
       .timeline()
       .from('[data-site-nav]', {

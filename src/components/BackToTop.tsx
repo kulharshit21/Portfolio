@@ -2,21 +2,27 @@ import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowUp } from 'lucide-react';
 import { motionEase } from '../lib/utils';
+import {
+  getLenisScrollY,
+  lenisScrollToTop,
+  subscribeLenisScroll,
+} from '../lib/lenisRoot';
 
 const BackToTop: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     const toggleVisibility = () => {
-      setIsVisible(window.scrollY > 500);
+      setIsVisible(getLenisScrollY() > 500);
     };
 
-    window.addEventListener('scroll', toggleVisibility, { passive: true });
-    return () => window.removeEventListener('scroll', toggleVisibility);
+    toggleVisibility();
+    const unsub = subscribeLenisScroll(toggleVisibility);
+    return () => unsub();
   }, []);
 
   const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    lenisScrollToTop();
   };
 
   return (

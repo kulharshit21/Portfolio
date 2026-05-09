@@ -16,6 +16,11 @@ import {
   FileText,
 } from 'lucide-react';
 import { motionEase, cn } from '../lib/utils';
+import {
+  getLenisScrollY,
+  lenisScrollToElement,
+  subscribeLenisScroll,
+} from '../lib/lenisRoot';
 
 type NavItem = {
   label: string;
@@ -55,10 +60,6 @@ const NAV_SECTION_IDS = navItems.map((item) =>
 /** ~fixed header + padding so the labeled section matches what the user sees. */
 const SCROLL_ACTIVE_OFFSET_PX = 112;
 
-function readScrollY(): number {
-  return window.scrollY || document.documentElement.scrollTop || 0;
-}
-
 const resumeUrl =
   'https://drive.google.com/file/d/1-mk6PvKIvfkX3H4VDd8DaGOC3oGzlkwp/view?usp=sharing';
 
@@ -66,17 +67,39 @@ const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
   const scrollRaf = useRef(0);
+  const sectionBoundsRef = useRef<{ id: string; top: number }[]>([]);
 
   const toggleMenu = () => setIsOpen((o) => !o);
 
-  const updateActiveFromScroll = useCallback(() => {
-    const y = readScrollY() + SCROLL_ACTIVE_OFFSET_PX;
-    let current = NAV_SECTION_IDS[0];
-    for (const id of NAV_SECTION_IDS) {
+  const rebuildSectionBounds = useCallback(() => {
+    const scrollY = getLenisScrollY();
+    sectionBoundsRef.current = NAV_SECTION_IDS.map((id) => {
       const el = document.getElementById(id);
-      if (!el) continue;
-      const top = el.getBoundingClientRect().top + readScrollY();
-      if (y >= top) current = id;
+      if (!el) return { id, top: Number.POSITIVE_INFINITY };
+      return { id, top: el.getBoundingClientRect().top + scrollY };
+    });
+  }, []);
+
+  const updateActiveFromScroll = useCallback(() => {
+    const y = getLenisScrollY() + SCROLL_ACTIVE_OFFSET_PX;
+    let current = NAV_SECTION_IDS[0];
+    const cached = sectionBoundsRef.current;
+    const useCache =
+      cached.length === NAV_SECTION_IDS.length &&
+      cached.every((b) => b.top !== Number.POSITIVE_INFINITY);
+
+    if (useCache) {
+      for (const { id, top } of cached) {
+        if (y >= top) current = id;
+      }
+    } else {
+      const scrollY = getLenisScrollY();
+      for (const id of NAV_SECTION_IDS) {
+        const el = document.getElementById(id);
+        if (!el) continue;
+        const top = el.getBoundingClientRect().top + scrollY;
+        if (y >= top) current = id;
+      }
     }
     setActiveSection((prev) => (prev === current ? prev : current));
   }, []);
@@ -90,31 +113,68 @@ const Navbar: React.FC = () => {
   }, [updateActiveFromScroll]);
 
   useEffect(() => {
+    rebuildSectionBounds();
     updateActiveFromScroll();
-    window.addEventListener('scroll', scheduleActiveFromScroll, {
-      passive: true,
-    });
-    window.addEventListener('resize', scheduleActiveFromScroll, { passive: true });
-    return () => {
-      if (scrollRaf.current) cancelAnimationFrame(scrollRaf.current);
-      window.removeEventListener('scroll', scheduleActiveFromScroll);
-      window.removeEventListener('resize', scheduleActiveFromScroll);
+
+    const unsubLenis = subscribeLenisScroll(() => scheduleActiveFromScroll());
+
+    let resizeDebounce = 0;
+    const onResize = () => {
+      window.clearTimeout(resizeDebounce);
+      resizeDebounce = window.setTimeout(() => {
+        rebuildSectionBounds();
+        scheduleActiveFromScroll();
+      }, 120);
     };
-  }, [scheduleActiveFromScroll, updateActiveFromScroll]);
+    window.addEventListener('resize', onResize, { passive: true });
+
+    const raf0 = requestAnimationFrame(() => {
+      rebuildSectionBounds();
+      requestAnimationFrame(() => {
+        rebuildSectionBounds();
+        updateActiveFromScroll();
+      });
+    });
+
+    const tLazyA = window.setTimeout(() => {
+      rebuildSectionBounds();
+      updateActiveFromScroll();
+    }, 650);
+    const tLazyB = window.setTimeout(() => {
+      rebuildSectionBounds();
+      updateActiveFromScroll();
+    }, 1500);
+
+    return () => {
+      cancelAnimationFrame(raf0);
+      window.clearTimeout(resizeDebounce);
+      window.clearTimeout(tLazyA);
+      window.clearTimeout(tLazyB);
+      if (scrollRaf.current) cancelAnimationFrame(scrollRaf.current);
+      unsubLenis();
+      window.removeEventListener('resize', onResize);
+    };
+  }, [
+    rebuildSectionBounds,
+    scheduleActiveFromScroll,
+    updateActiveFromScroll,
+  ]);
 
   const scrollToSection = useCallback(
     (target: string) => {
       const id = target.replace(/^#/, '');
       setActiveSection(id);
       setIsOpen(false);
-      document.querySelector<HTMLElement>(target)?.scrollIntoView({
-        behavior: 'smooth',
-      });
-      [80, 320, 700].forEach((ms) =>
-        window.setTimeout(updateActiveFromScroll, ms)
+      lenisScrollToElement(target, { offset: -SCROLL_ACTIVE_OFFSET_PX });
+      rebuildSectionBounds();
+      [90, 280, 600, 1100].forEach((ms) =>
+        window.setTimeout(() => {
+          rebuildSectionBounds();
+          updateActiveFromScroll();
+        }, ms)
       );
     },
-    [updateActiveFromScroll]
+    [rebuildSectionBounds, updateActiveFromScroll]
   );
 
   const overlayVariants = {

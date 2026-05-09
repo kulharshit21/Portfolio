@@ -14,7 +14,6 @@ interface Certification {
   title: string;
   issuer: string;
   date: string;
-  verifyUrl: string;
   badgeUrl: string;
   logoSrc: string;
   logoAlt: string;
@@ -26,8 +25,6 @@ const certifications: Certification[] = [
     title: 'AWS Certified Developer – Associate',
     issuer: 'Amazon Web Services',
     date: 'May 2026',
-    verifyUrl:
-      'https://aws.amazon.com/certification/certified-developer-associate/',
     badgeUrl:
       'https://www.credly.com/badges/82e100c6-7e1c-4989-895b-3a6cc60d2acb/public_url',
     logoSrc:
@@ -39,8 +36,6 @@ const certifications: Certification[] = [
     title: 'MongoDB Associate Developer – Python',
     issuer: 'MongoDB',
     date: 'May 2026',
-    verifyUrl:
-      'https://learn.mongodb.com/pages/mongodb-associate-developer-exam',
     badgeUrl:
       'https://www.credly.com/badges/98dd8b6e-9d5a-41eb-8f20-adfdbdef1522/public_url',
     logoSrc: '/logos/mongodb.svg',
@@ -51,8 +46,6 @@ const certifications: Certification[] = [
     title: 'SAP Certified – SAP Generative AI Developer',
     issuer: 'SAP',
     date: 'Mar 2026',
-    verifyUrl:
-      'https://learning.sap.com/certifications/sap-certified-associate-sap-generative-ai-developer',
     badgeUrl:
       'https://www.credly.com/badges/7d4e1808-ca11-4c19-9a4a-e7a9644aed8e/public_url',
     logoSrc:
@@ -64,8 +57,6 @@ const certifications: Certification[] = [
     title: 'AWS Academy Graduate – Cloud Architecting',
     issuer: 'Amazon Web Services',
     date: 'Apr 2026',
-    verifyUrl:
-      'https://www.credly.com/org/amazon-web-services/badge/aws-academy-graduate-cloud-architecting-training-ba',
     badgeUrl:
       'https://www.credly.com/badges/edf91b6d-525e-495b-a6ce-e37cde72b8bf/public_url',
     logoSrc:
@@ -160,7 +151,8 @@ const Certifications: React.FC = () => {
         });
       });
 
-      ScrollTrigger.refresh();    },
+      ScrollTrigger.refresh();
+    },
     { scope: sectionRef }
   );
 
@@ -212,22 +204,13 @@ const Certifications: React.FC = () => {
                 <p className="mb-4 font-dm text-sm text-muted">{cert.date}</p>
                 <div className="mt-auto flex flex-wrap gap-2">
                   <motion.a
-                    href={cert.verifyUrl}
+                    href={cert.badgeUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     whileHover={{ y: -2 }}
                     className="inline-flex items-center gap-1.5 rounded-lg border border-accent-2/50 bg-accent-2/10 px-3 py-2 font-mono text-xs font-medium text-accent-2"
                   >
                     Verify ↗
-                  </motion.a>
-                  <motion.a
-                    href={cert.badgeUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    whileHover={{ y: -2 }}
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-border/80 bg-border/30 px-3 py-2 font-mono text-xs font-medium text-foreground"
-                  >
-                    Badge ↗
                   </motion.a>
                 </div>
               </article>

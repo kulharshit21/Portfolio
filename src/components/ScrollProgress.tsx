@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { getLenisScrollY, subscribeLenisScroll } from '../lib/lenisRoot';
 
 const ScrollProgress: React.FC = () => {
   const [scrollProgress, setScrollProgress] = useState(0);
@@ -7,15 +8,19 @@ const ScrollProgress: React.FC = () => {
     const handleScroll = () => {
       const windowHeight = window.innerHeight;
       const documentHeight = document.documentElement.scrollHeight;
-      const scrollTop = window.scrollY;
+      const scrollTop = getLenisScrollY();
       const trackLength = documentHeight - windowHeight;
       const progress = (scrollTop / trackLength) * 100;
       setScrollProgress(Number.isFinite(progress) ? progress : 0);
     };
 
     handleScroll();
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    const unsubLenis = subscribeLenisScroll(handleScroll);
+    window.addEventListener('resize', handleScroll, { passive: true });
+    return () => {
+      unsubLenis();
+      window.removeEventListener('resize', handleScroll);
+    };
   }, []);
 
   return (

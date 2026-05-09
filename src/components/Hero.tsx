@@ -1,4 +1,4 @@
-import React, { lazy, Suspense, useRef } from 'react';
+import React, { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { motion, useMotionTemplate, useMotionValue, useSpring } from 'framer-motion';
 import { ChevronDown, Globe, Mail, Phone } from 'lucide-react';
 import HarshitPhoto from '../Harshit Photo.jpg';
@@ -9,6 +9,19 @@ import { lenisScrollToElement, NAV_SCROLL_OFFSET_PX } from '../lib/lenisRoot';
 const HeroParticleCanvas = lazy(() =>
   import('./ParticleField').then((m) => ({ default: m.HeroParticleCanvas }))
 );
+
+function shouldLoadHeroParticles() {
+  if (typeof window === 'undefined') return false;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+    return false;
+  // Skip ~900KB three.js on small viewports (GPU + bandwidth).
+  if (window.matchMedia('(max-width: 1023px)').matches) return false;
+  const c = (navigator as Navigator & { connection?: { saveData?: boolean; effectiveType?: string } })
+    .connection;
+  if (c?.saveData) return false;
+  if (c?.effectiveType === 'slow-2g' || c?.effectiveType === '2g') return false;
+  return true;
+}
 
 type NamePart = { readonly text: string; readonly emphasized: boolean };
 type NameLine = { readonly parts: readonly NamePart[] };
@@ -123,6 +136,26 @@ function MagneticGetInTouch({
 
 const Hero: React.FC = () => {
   const particleMouse = useRef({ x: 0, y: 0 });
+  const [particlesOn, setParticlesOn] = useState(false);
+
+  useEffect(() => {
+    if (!shouldLoadHeroParticles()) return;
+    let cancelled = false;
+    const enable = () => {
+      if (!cancelled) setParticlesOn(true);
+    };
+    const idleId =
+      typeof requestIdleCallback !== 'undefined'
+        ? requestIdleCallback(enable, { timeout: 2200 })
+        : null;
+    const timeoutId =
+      idleId == null ? window.setTimeout(enable, 1400) : null;
+    return () => {
+      cancelled = true;
+      if (idleId != null) cancelIdleCallback(idleId);
+      if (timeoutId != null) window.clearTimeout(timeoutId);
+    };
+  }, []);
 
   function onHeroMouseMove(e: React.MouseEvent<HTMLElement>) {
     const r = e.currentTarget.getBoundingClientRect();
@@ -139,9 +172,11 @@ const Hero: React.FC = () => {
       className="group/hero relative isolate min-h-[100svh] min-h-screen scroll-mt-24 overflow-hidden bg-bg py-12 font-dm text-foreground sm:py-16 md:scroll-mt-28 md:py-20"
       aria-label="Hero section"
     >
-      <Suspense fallback={null}>
-        <HeroParticleCanvas mouse={particleMouse} />
-      </Suspense>
+      {particlesOn ? (
+        <Suspense fallback={null}>
+          <HeroParticleCanvas mouse={particleMouse} />
+        </Suspense>
+      ) : null}
 
       <div
         className="pointer-events-none absolute inset-0 z-0 overflow-hidden"
@@ -273,7 +308,7 @@ const Hero: React.FC = () => {
           className="mb-8 mt-2 inline-flex flex-col items-center gap-1 self-start text-muted lg:mb-10"
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: motionEase, delay: 1.55 }}
+          transition={{ duration: 0.45, ease: motionEase, delay: 0.45 }}
           aria-label="Scroll to skills"
         >
           <motion.span

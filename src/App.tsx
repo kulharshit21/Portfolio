@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import Lenis from 'lenis';
 import 'lenis/dist/lenis.css';
 import { gsap, ScrollTrigger, useGSAP } from './lib/gsapSetup';
@@ -8,9 +8,11 @@ import ScrollProgress from './components/ScrollProgress';
 import BackToTop from './components/BackToTop';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
-import { GlobalCursor } from './components/GlobalCursor';
 
 const BelowFold = lazy(() => import('./components/BelowFold'));
+const GlobalCursorLazy = lazy(() =>
+  import('./components/GlobalCursor').then((m) => ({ default: m.GlobalCursor }))
+);
 
 function SectionFallback() {
   return <div className="min-h-[min(40vh,320px)] w-full" aria-hidden />;
@@ -121,50 +123,55 @@ function AppContent() {
       return;
     }
 
+    /** Opacity stays 1 so hero/LCP is readable as soon as paint runs. */
     gsap
       .timeline()
       .from('[data-site-nav]', {
-        y: -80,
-        opacity: 0,
-        duration: 0.8,
+        y: -18,
+        opacity: 1,
+        duration: 0.38,
         ease: 'power3.out',
       })
       .from(
         '.hero-name .hero-char',
         {
-          y: 120,
-          opacity: 0,
-          duration: 0.9,
-          stagger: 0.03,
+          y: 36,
+          opacity: 1,
+          duration: 0.48,
+          stagger: 0.015,
           ease: 'power4.out',
         },
-        '-=0.4'
+        '-=0.22'
       )
       .from(
         '.hero-role',
-        { x: -40, opacity: 0, duration: 0.7 },
-        '-=0.3'
+        { x: -14, opacity: 1, duration: 0.36 },
+        '-=0.2'
       )
       .from(
         '.hero-photo',
         {
-          scale: 0.8,
-          opacity: 0,
-          duration: 0.8,
-          ease: 'back.out(1.7)',
+          scale: 0.96,
+          opacity: 1,
+          duration: 0.5,
+          ease: 'back.out(1.4)',
         },
-        '-=0.5'
+        '-=0.32'
       )
       .from(
         '.hero-cta',
-        { y: 20, opacity: 0, duration: 0.5 },
-        '-=0.2'
+        { y: 10, opacity: 1, duration: 0.34 },
+        '-=0.18'
       );
   }, []);
 
   return (
     <div className="relative min-h-[100svh] min-h-screen font-dm text-foreground">
-      <GlobalCursor />
+      {cursorOn ? (
+        <Suspense fallback={null}>
+          <GlobalCursorLazy />
+        </Suspense>
+      ) : null}
       <ScrollProgress />
       <Navbar />
       <main className="relative z-10 pt-20 pb-[env(safe-area-inset-bottom,0px)] md:pt-24">

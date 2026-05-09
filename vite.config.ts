@@ -2,8 +2,11 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
 // https://vitejs.dev/config/
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins: [react()],
+  esbuild: {
+    drop: mode === 'production' ? ['console', 'debugger'] : [],
+  },
   build: {
     target: 'es2020',
     /** Defer heavy three.js download until the lazy hero chunk runs (no <link rel="modulepreload"> for it). */
@@ -40,4 +43,4 @@ export default defineConfig({
       },
     },
   },
-});
+}));

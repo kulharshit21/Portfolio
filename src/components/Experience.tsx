@@ -1,5 +1,13 @@
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
+import { motion } from 'framer-motion';
 import { Calendar, MapPin, Award } from 'lucide-react';
+import {
+  cn,
+  motionEase,
+  sectionShell,
+  sectionTitleMargin,
+  viewportOnce,
+} from '../lib/utils';
 
 interface Experience {
   id: number;
@@ -62,88 +70,66 @@ const experiences: Experience[] = [
 ];
 
 const Experience: React.FC = () => {
-  const sectionRef = useRef<HTMLElement>(null);
-
-  useEffect(() => {
-    const handleIntersection = (entries: IntersectionObserverEntry[]) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('animate-fadeIn');
-        }
-      });
-    };
-
-    const observer = new IntersectionObserver(handleIntersection, {
-      root: null,
-      threshold: 0.1,
-    });
-
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
-    }
-
-    return () => {
-      if (sectionRef.current) {
-        observer.unobserve(sectionRef.current);
-      }
-    };
-  }, []);
-
   return (
-    <section 
-      id="experience" 
-      ref={sectionRef}
-      className="py-24 bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 opacity-0"
-    >
+    <section id="experience" className={sectionShell}>
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 className="text-3xl font-bold text-center mb-12 text-white">
+        <motion.h2
+          className={cn(
+            sectionTitleMargin,
+            'text-center font-display text-3xl font-normal md:text-4xl'
+          )}
+          initial={{ opacity: 0, x: -20 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={viewportOnce}
+          transition={{ duration: 0.65, ease: motionEase }}
+        >
           <span className="relative inline-block">
             Experience
-            <span className="absolute bottom-0 left-0 w-full h-1 bg-blue-400 transform origin-left"></span>
+            <span className="absolute bottom-0 left-0 h-1 w-full origin-left bg-accent-2"></span>
           </span>
-        </h2>
+        </motion.h2>
 
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div className="mx-auto max-w-7xl">
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-4">
             {experiences.map((exp) => (
               <div 
                 key={exp.id}
-                className="bg-slate-800 p-5 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 border border-slate-700"
+                className="rounded-xl border border-border bg-surface p-5 shadow-sm"
               >
-                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center">
-                  <h3 className="text-lg font-bold text-white">{exp.role}</h3>
-                  <div className="flex items-center text-blue-600 text-sm font-medium my-2 sm:my-0">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                  <h3 className="font-display text-lg font-normal text-foreground">{exp.role}</h3>
+                  <div className="my-2 flex items-center font-dm text-sm font-medium text-accent-2 sm:my-0">
                     <Calendar size={16} className="mr-1" />
                     {exp.period}
                   </div>
                 </div>
                 
-                <p className="text-lg font-semibold text-blue-400 mt-1">{exp.company}</p>
+                <p className="mt-1 font-dm text-lg font-semibold text-accent-2">{exp.company}</p>
                 
-                <div className="flex items-center text-slate-600 text-sm mt-1 mb-4">
+                <div className="mb-4 mt-1 flex items-center font-dm text-sm text-muted">
                   <MapPin size={16} className="mr-1" />
                   {exp.location}
                 </div>
                 
-                <ul className="space-y-2 text-slate-300">
+                <ul className="space-y-2 font-dm text-foreground/90">
                   {exp.description.map((item, index) => (
                     <li key={index} className="flex items-start">
-                      <span className="inline-block w-1.5 h-1.5 rounded-full bg-blue-600 mt-[0.6rem] mr-2"></span>
+                      <span className="mt-[0.6rem] mr-2 inline-block h-1.5 w-1.5 rounded-full bg-accent-2"></span>
                       {item}
                     </li>
                   ))}
                 </ul>
                 
                 {exp.achievements && (
-                  <div className="mt-4 pt-4 border-t border-gray-100">
-                    <div className="flex items-center text-green-600 font-medium mb-2">
+                  <div className="mt-4 border-t border-border pt-4">
+                    <div className="mb-2 flex items-center font-dm font-medium text-accent">
                       <Award size={18} className="mr-2" />
                       Achievements
                     </div>
-                    <ul className="space-y-2 text-green-300">
+                    <ul className="space-y-2 font-dm text-foreground/90">
                       {exp.achievements.map((achievement, index) => (
                         <li key={index} className="flex items-start">
-                          <span className="inline-block w-1.5 h-1.5 rounded-full bg-green-600 mt-[0.6rem] mr-2"></span>
+                          <span className="mt-[0.6rem] mr-2 inline-block h-1.5 w-1.5 rounded-full bg-accent"></span>
                           {achievement}
                         </li>
                       ))}

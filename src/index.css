@@ -34,13 +34,61 @@ html {
   scroll-behavior: smooth;
 }
 
+@keyframes magnetic-cta-sheen {
+  from {
+    transform: translateX(-100%);
+  }
+
+  to {
+    transform: translateX(100%);
+  }
+}
+
+.magnetic-cta-btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    105deg,
+    transparent 35%,
+    rgba(255, 255, 255, 0.38) 50%,
+    transparent 65%
+  );
+  opacity: 0;
+}
+
+[data-magnetic-cta]:hover .magnetic-cta-btn::after {
+  animation: magnetic-cta-sheen 0.65s ease-out forwards;
+  opacity: 0.9;
+}
+
+:root {
+  --bg: #0a0a0a;
+  --surface: #111111;
+  --accent: #e8d5b0;
+}
+
 body {
   margin: 0;
-  font-family: 'Inter', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: linear-gradient(to right, #0f172a, #1e293b);
-  color: #f8fafc;
+  background-color: var(--bg);
+  color: #f0ede8;
+  position: relative;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9998;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
 }
 
 h1,
@@ -49,7 +97,7 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: 'Poppins', sans-serif;
+  font-family: 'Playfair Display', Georgia, serif;
 }
 
 /* Star background animation */
@@ -469,4 +517,50 @@ h6 {
 /* Initial state for animated items */
 .scroll-animate {
   opacity: 0;
+}
+
+/* Hero: floating orbs (Option A, no purple) */
+@keyframes hero-orb-drift-a {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(10vw, -12vh) scale(1.06);
+  }
+  66% {
+    transform: translate(-8vw, 8vh) scale(0.97);
+  }
+}
+
+@keyframes hero-orb-drift-b {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1.02);
+  }
+  50% {
+    transform: translate(-14vw, -6vh) scale(1);
+  }
+}
+
+@keyframes hero-orb-drift-c {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  40% {
+    transform: translate(6vw, 14vh);
+  }
+  70% {
+    transform: translate(-12vw, -4vh);
+  }
+}
+
+@keyframes hero-cta-shimmer {
+  0% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(120%);
+  }
 }

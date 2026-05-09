@@ -1,0 +1,278 @@
+# ============================================================
+# PORTFOLIO REDESIGN — CURSOR RULES
+# Keep ALL content. Redesign ONLY visuals, layout, animation.
+# ============================================================
+
+## PRIME DIRECTIVE
+You are rebuilding a portfolio site. Rules:
+- NEVER change: name, bio, project titles, descriptions, links, skills list, contact info
+- ALWAYS change: colors, fonts, spacing, layout, animations, component design
+- Content is sacred. Design is yours to own.
+
+---
+
+## TECH STACK
+- Next.js 14 (App Router)
+- TypeScript
+- Tailwind CSS
+- Framer Motion (ALL animations — no CSS-only transitions)
+- shadcn/ui for base components
+
+Install if missing:
+```bash
+npm install framer-motion
+npm install -D @types/node
+```
+
+---
+
+## DESIGN SYSTEM
+
+### Typography
+- Display/headings: "Instrument Serif" or "Playfair Display" (Google Fonts)
+- Body: "DM Sans" or "Sora"
+- Monospace (for code/skills): "JetBrains Mono"
+- NEVER use: Inter, Roboto, Arial, system-ui
+
+### Color Palette (dark-first)
+```css
+:root {
+  --bg:        #0a0a0a;
+  --surface:   #111111;
+  --border:    #1f1f1f;
+  --text:      #f0ede8;
+  --muted:     #6b6b6b;
+  --accent:    #e8d5b0;   /* warm gold — change to match your vibe */
+  --accent-2:  #4a9eff;   /* electric blue pop */
+}
+```
+→ Override accent colors to match your personality. One dominant, one pop.
+
+### Spacing (8px grid)
+- xs: 4px | sm: 8px | md: 16px | lg: 24px | xl: 40px | 2xl: 64px | 3xl: 96px
+- Section padding: py-24 to py-32
+- Max content width: max-w-5xl (1024px), centered
+
+---
+
+## ANIMATION RULES (Framer Motion)
+
+### Page load — stagger everything
+```tsx
+const container = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1, delayChildren: 0.2 }
+  }
+}
+const item = {
+  hidden: { opacity: 0, y: 24 },
+  show:   { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } }
+}
+// Usage: <motion.div variants={container} initial="hidden" animate="show">
+//          <motion.h1 variants={item}>...</motion.h1>
+//        </motion.div>
+```
+
+### Scroll reveals — every section
+```tsx
+import { useInView } from 'framer-motion'
+// Or use:
+<motion.div
+  initial={{ opacity: 0, y: 40 }}
+  whileInView={{ opacity: 1, y: 0 }}
+  viewport={{ once: true, margin: "-80px" }}
+  transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+>
+```
+
+### Hover states — all cards/links
+```tsx
+<motion.div
+  whileHover={{ y: -4, scale: 1.01 }}
+  transition={{ duration: 0.2, ease: "easeOut" }}
+>
+```
+
+### Cursor glow effect (optional but premium)
+Track mouse position with `useMotionValue`, render a blurred radial gradient that follows cursor.
+
+### Text animations
+- Hero name: split into chars, stagger animate with `y: 100 → 0` (clip with overflow-hidden)
+- Section headers: slide in from left
+- NEVER use typewriter effect — it's overdone
+
+---
+
+## LAYOUT RULES
+
+### Hero Section
+- Full viewport height (min-h-screen)
+- Name LARGE — clamp(3rem, 8vw, 7rem)
+- Role/tagline below, muted color
+- Subtle grid or noise texture background
+- Scroll indicator (animated bounce arrow or line)
+- NO hero image unless it's a strong portrait — text-first
+
+### Navigation
+- Fixed top, backdrop-blur-md, border-b border-border/40
+- Logo left (initials or name), links right
+- Mobile: hamburger → full-screen overlay menu with stagger animation
+- Active link: accent color underline, not bold
+
+### Projects Section
+- Grid layout: 2 cols desktop, 1 col mobile
+- Each card: dark surface, subtle border, hover lifts + border brightens
+- Show: project name, 1-line description, tech stack pills, live/github links
+- NO screenshots unless you have good ones — use abstract color blocks instead
+
+### Skills Section
+- Horizontal scrolling marquee OR grouped by category
+- Use monospace font for skill names
+- NO skill bars/percentages — they look amateur
+
+### About Section
+- Short paragraph (keep your exact text)
+- Maybe a timeline of experience/education
+- Minimal — let work speak
+
+### Contact Section
+- Simple: email link (large), social icons
+- NO contact forms unless you have backend
+- Copy email to clipboard on click with toast notification
+
+---
+
+## COMPONENT PATTERNS
+
+### Project Card
+```tsx
+<motion.article
+  whileHover={{ y: -6 }}
+  className="group relative bg-surface border border-border rounded-xl p-6 cursor-pointer"
+>
+  <div className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity
+    bg-gradient-to-br from-accent/5 to-transparent" />
+  {/* content */}
+</motion.article>
+```
+
+### Section Header
+```tsx
+<motion.div
+  initial={{ opacity: 0, x: -20 }}
+  whileInView={{ opacity: 1, x: 0 }}
+  viewport={{ once: true }}
+>
+  <span className="text-accent font-mono text-sm tracking-widest uppercase">02.</span>
+  <h2 className="text-4xl font-display mt-1">Projects</h2>
+</motion.div>
+```
+
+### Tech Pill
+```tsx
+<span className="font-mono text-xs px-2 py-1 rounded-md bg-border text-muted border border-border/60">
+  React
+</span>
+```
+
+---
+
+## WHAT TO AVOID
+- Purple/violet gradients (overused AI aesthetic)
+- Glassmorphism everywhere
+- Particle.js or canvas particle backgrounds
+- Skill percentage bars
+- Typewriter text effects
+- Centered-everything layouts (use asymmetry)
+- Generic stock icons — use Lucide or Phosphor only
+- Lazy loading skeleton that flashes too long
+
+---
+
+## FILE STRUCTURE
+```
+app/
+  layout.tsx          ← fonts, metadata, global styles
+  page.tsx            ← compose all sections
+  globals.css         ← CSS vars, base styles
+components/
+  sections/
+    Hero.tsx
+    About.tsx
+    Projects.tsx
+    Skills.tsx
+    Contact.tsx
+  ui/
+    ProjectCard.tsx
+    NavBar.tsx
+    SectionHeader.tsx
+  animations/
+    FadeIn.tsx         ← reusable scroll-reveal wrapper
+    StaggerContainer.tsx
+lib/
+  data.ts             ← ALL content here (projects, skills, bio)
+```
+
+---
+
+## STARTER PROMPTS FOR CURSOR COMPOSER
+
+### Prompt 1 — Initial Setup
+```
+Set up a Next.js 14 portfolio with TypeScript, Tailwind CSS, and Framer Motion.
+Follow the design system in .cursorrules exactly.
+Create lib/data.ts with placeholder content matching this structure:
+- name, role, bio, email
+- projects: array of {title, description, tech[], liveUrl, githubUrl}
+- skills: grouped by category
+Do not start building UI yet. Just scaffold the project.
+```
+
+### Prompt 2 — Hero Section
+```
+Build the Hero section (components/sections/Hero.tsx).
+Rules:
+- Full viewport height
+- Name animates in with character-by-character stagger (overflow hidden, y: 100 → 0)
+- Role subtitle fades in after name, 0.3s delay
+- Scroll-down indicator bounces at bottom
+- Dark background with subtle noise texture (use CSS: filter: url(#noise))
+- Use ONLY data from lib/data.ts — no hardcoded text
+- Follow all animation specs in .cursorrules
+```
+
+### Prompt 3 — Projects Section
+```
+Build the Projects section (components/sections/Projects.tsx).
+Rules:
+- 2-col grid desktop, 1-col mobile
+- Each card uses ProjectCard component
+- Cards animate in with scroll reveal + stagger between cards
+- Hover: card lifts (y: -6px), accent gradient overlay appears
+- Show: title, description, tech pills, links (live + github icons)
+- Section header has numbered prefix (02.) in accent/mono font
+- Pull all data from lib/data.ts
+```
+
+### Prompt 4 — Polish Pass
+```
+Do a full polish pass on all sections:
+1. Check all animations use the easing [0.22, 1, 0.36, 1]
+2. Verify viewport once:true on all scroll animations
+3. Add a subtle grain texture overlay to the entire page (CSS pseudo-element)
+4. Add smooth scroll behavior (html { scroll-behavior: smooth })
+5. Check mobile layout — all sections should look good at 375px
+6. Add a "back to top" button that appears after scrolling 500px
+7. Verify all content matches exactly what's in lib/data.ts
+```
+
+### Prompt 5 — Content Migration (use this last)
+```
+I'm migrating content from my old portfolio. Replace all placeholder content in lib/data.ts with:
+
+[PASTE YOUR OLD PORTFOLIO CONTENT HERE]
+
+Keep every piece of text exactly as-is. Only update lib/data.ts — touch no other files.
+```

@@ -2,7 +2,22 @@
 export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        bg: '#0a0a0a',
+        surface: '#111111',
+        border: '#1f1f1f',
+        foreground: '#f0ede8',
+        muted: '#6b6b6b',
+        accent: '#e8d5b0',
+        'accent-2': '#4a9eff',
+      },
+      fontFamily: {
+        display: ['"Playfair Display"', 'Georgia', 'serif'],
+        dm: ['"DM Sans"', 'sans-serif'],
+        mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
+      },
+    },
   },
   plugins: [],
 };

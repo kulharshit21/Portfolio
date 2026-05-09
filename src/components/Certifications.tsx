@@ -1,201 +1,150 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Award, ExternalLink, X } from 'lucide-react';
+import React from 'react';
+import { motion } from 'framer-motion';
+import { cn, motionEase, sectionShell, sectionTitleMargin, viewportOnce } from '../lib/utils';
 
 interface Certification {
   id: number;
   title: string;
   issuer: string;
   date: string;
-  link?: string;
+  verifyUrl: string;
+  badgeUrl: string;
+  logoSrc: string;
+  logoAlt: string;
 }
-
-// Modal component for certificate viewing
-interface ModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  certificatePath: string;
-  title: string;
-}
-
-const CertificateModal: React.FC<ModalProps> = ({ isOpen, onClose, certificatePath, title }) => {
-  if (!isOpen) return null;
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black bg-opacity-75 transition-opacity" onClick={onClose}></div>
-      <div className="relative w-11/12 max-w-3xl max-h-[90vh] bg-white rounded-lg shadow-xl overflow-hidden z-10">
-        <div className="flex items-center justify-between p-4 border-b border-gray-200">
-          <h3 className="text-xl font-semibold text-slate-800">{title}</h3>
-          <button 
-            onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 focus:outline-none"
-          >
-            <X size={24} />
-          </button>
-        </div>
-        <div className="p-6 overflow-auto" style={{ maxHeight: 'calc(90vh - 90px)' }}>
-          <img 
-            src={certificatePath} 
-            alt={`${title} Certificate`}
-            className="w-full h-auto"
-          />
-        </div>
-      </div>
-    </div>
-  );
-};
 
 const certifications: Certification[] = [
   {
     id: 1,
-    title: "Programming in Java",
-    issuer: "NPTEL (IITs & IISc)",
-    date: "2024",
-    link: "#"
+    title: 'AWS Certified Developer – Associate',
+    issuer: 'Amazon Web Services',
+    date: 'May 2026',
+    verifyUrl:
+      'https://aws.amazon.com/certification/certified-developer-associate/',
+    badgeUrl:
+      'https://www.credly.com/badges/82e100c6-7e1c-4989-895b-3a6cc60d2acb/public_url',
+    logoSrc:
+      'https://upload.wikimedia.org/wikipedia/commons/9/93/Amazon_Web_Services_Logo.svg',
+    logoAlt: 'Amazon Web Services',
   },
   {
     id: 2,
-    title: "Introduction to Database Systems",
-    issuer: "NPTEL (IITs & IISc)",
-    date: "2024",
-    link: "#"
+    title: 'MongoDB Associate Developer – Python',
+    issuer: 'MongoDB',
+    date: 'May 2026',
+    verifyUrl:
+      'https://learn.mongodb.com/pages/mongodb-associate-developer-exam',
+    badgeUrl:
+      'https://www.credly.com/badges/98dd8b6e-9d5a-41eb-8f20-adfdbdef1522/public_url',
+    logoSrc: '/logos/mongodb.svg',
+    logoAlt: 'MongoDB',
   },
   {
     id: 3,
-    title: "Python Programming",
-    issuer: "NPTEL",
-    date: "August 2023",
-    link: "#"
+    title: 'SAP Certified – SAP Generative AI Developer',
+    issuer: 'SAP',
+    date: 'Mar 2026',
+    verifyUrl:
+      'https://learning.sap.com/certifications/sap-certified-associate-sap-generative-ai-developer',
+    badgeUrl:
+      'https://www.credly.com/badges/7d4e1808-ca11-4c19-9a4a-e7a9644aed8e/public_url',
+    logoSrc:
+      'https://upload.wikimedia.org/wikipedia/commons/5/59/SAP_2011_logo.svg',
+    logoAlt: 'SAP',
   },
   {
     id: 4,
-    title: "C Programming",
-    issuer: "Udemy",
-    date: "December 2023",
-    link: "#"
+    title: 'AWS Academy Graduate – Cloud Architecting',
+    issuer: 'Amazon Web Services',
+    date: 'Apr 2026',
+    verifyUrl:
+      'https://www.credly.com/org/amazon-web-services/badge/aws-academy-graduate-cloud-architecting-training-ba',
+    badgeUrl:
+      'https://www.credly.com/badges/edf91b6d-525e-495b-a6ce-e37cde72b8bf/public_url',
+    logoSrc:
+      'https://upload.wikimedia.org/wikipedia/commons/9/93/Amazon_Web_Services_Logo.svg',
+    logoAlt: 'Amazon Web Services',
   },
-  {
-    id: 5,
-    title: "C++ Programming",
-    issuer: "EdX",
-    date: "March 2024",
-    link: "#"
-  },
-  {
-    id: 6,
-    title: "HTML & Web Development",
-    issuer: "freeCodeCamp",
-    date: "May 2024",
-    link: "#"
-  },
-  {
-    id: 7,
-    title: "IEEE ICCCNT 2024 – Wind Farm Digital Twin Publication",
-    issuer: "IEEE",
-    date: "June 2024"
-  },
-  {
-    id: 8,
-    title: "WeHack National Level Hackathon",
-    issuer: "WeHack",
-    date: "February 2024"
-  },
-  {
-    id: 9,
-    title: "Digital Twin Workshop (3rd Place)",
-    issuer: "Praya Labs, SRM IST",
-    date: "October 2024"
-  },
-  {
-    id: 10,
-    title: "Advanced Programming Practices",
-    issuer: "NPTEL",
-    date: "July 2024",
-    link: "#"
-  }
 ];
 
 const Certifications: React.FC = () => {
-  const sectionRef = useRef<HTMLElement>(null);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [selectedCertificate, setSelectedCertificate] = useState({ path: '', title: '' });
-
-  useEffect(() => {
-    const handleIntersection = (entries: IntersectionObserverEntry[]) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('animate-fadeIn');
-        }
-      });
-    };
-
-    const observer = new IntersectionObserver(handleIntersection, {
-      root: null,
-      threshold: 0.1,
-    });
-
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
-    }
-
-    return () => {
-      if (sectionRef.current) {
-        observer.unobserve(sectionRef.current);
-      }
-    };
-  }, []);
-
-  const openCertificateModal = (certId: number, title: string) => {
-    // In a real scenario, you would have actual paths to the certificates
-    // For now, we'll use a placeholder image
-    const certificatePath = `/path/to/certificate-${certId}.jpg`;
-    setSelectedCertificate({ path: certificatePath, title });
-    setModalOpen(true);
-  };
-
   return (
-    <section 
-      id="certifications" 
-      ref={sectionRef}
-      className="py-24 bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 text-white opacity-0"
-    >
+    <section id="certifications" className={sectionShell}>
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 className="text-3xl font-bold text-center mb-12 text-white">
+        <motion.h2
+          className={cn(
+            sectionTitleMargin,
+            'text-center font-display text-3xl font-normal md:text-4xl'
+          )}
+          initial={{ opacity: 0, x: -20 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={viewportOnce}
+          transition={{ duration: 0.65, ease: motionEase }}
+        >
           <span className="relative inline-block">
             Certificates & Training
-            <span className="absolute bottom-0 left-0 w-full h-1 bg-blue-400 transform origin-left"></span>
+            <span className="absolute bottom-0 left-0 h-1 w-full origin-left bg-accent-2" />
           </span>
-        </h2>
+        </motion.h2>
 
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-            {certifications.map(cert => (
-              <div 
+        <div className="mx-auto max-w-5xl">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            {certifications.map((cert, index) => (
+              <motion.article
                 key={cert.id}
-                className="bg-slate-800 rounded-lg p-4 shadow-md hover:shadow-lg transition-shadow duration-300 border border-slate-700 flex flex-col"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={viewportOnce}
+                transition={{
+                  duration: 0.55,
+                  ease: motionEase,
+                  delay: index * 0.04,
+                }}
+                className="flex flex-col rounded-xl border border-border bg-surface p-5 shadow-md"
               >
-                <div className="flex items-start mb-3">
-                  <div className="bg-blue-900 p-1.5 rounded-md mr-3">
-                    <Award size={18} className="text-blue-400" />
+                <div className="mb-4 flex items-center gap-3 border-b border-border/80 pb-4">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-border/60 bg-bg/60 p-2">
+                    <img
+                      src={cert.logoSrc}
+                      alt={cert.logoAlt}
+                      className="h-full w-full object-contain"
+                      loading="lazy"
+                      decoding="async"
+                    />
                   </div>
-                  <div>
-                    <h3 className="text-sm font-semibold text-white">{cert.title}</h3>
-                    <p className="text-xs text-slate-300">{cert.issuer}</p>
-                  </div>
+                  <p className="font-dm text-xs font-medium uppercase tracking-wide text-muted">
+                    {cert.issuer}
+                  </p>
                 </div>
-                <p className="text-xs text-slate-400 mt-auto">{cert.date}</p>
-              </div>
+                <h3 className="mb-2 font-display text-base font-normal leading-snug text-foreground md:text-lg">
+                  {cert.title}
+                </h3>
+                <p className="mb-4 font-dm text-sm text-muted">{cert.date}</p>
+                <div className="mt-auto flex flex-wrap gap-2">
+                  <motion.a
+                    href={cert.verifyUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    whileHover={{ y: -2 }}
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-accent-2/50 bg-accent-2/10 px-3 py-2 font-mono text-xs font-medium text-accent-2"
+                  >
+                    Verify ↗
+                  </motion.a>
+                  <motion.a
+                    href={cert.badgeUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    whileHover={{ y: -2 }}
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-border/80 bg-border/30 px-3 py-2 font-mono text-xs font-medium text-foreground"
+                  >
+                    Badge ↗
+                  </motion.a>
+                </div>
+              </motion.article>
             ))}
           </div>
         </div>
       </div>
-
-      <CertificateModal
-        isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
-        certificatePath={selectedCertificate.path}
-        title={selectedCertificate.title}
-      />
     </section>
   );
 };

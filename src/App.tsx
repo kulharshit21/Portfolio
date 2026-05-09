@@ -1,64 +1,116 @@
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
+import Lenis from 'lenis';
+import 'lenis/dist/lenis.css';
+import { gsap, ScrollTrigger, useGSAP } from './lib/gsapSetup';
 import ErrorBoundary from './components/ErrorBoundary';
-import LoadingScreen from './components/LoadingScreen';
 import ScrollProgress from './components/ScrollProgress';
 import BackToTop from './components/BackToTop';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
-// About section is embedded in Hero
-import Skills from './components/Skills';
-import Projects from './components/Projects';
-import Experience from './components/Experience';
-import Education from './components/Education';
-import Certifications from './components/Certifications';
-import OngoingProjects from './components/OngoingProjects';
-import ExtraCurriculars from './components/ExtraCurriculars';
-import References from './components/References';
-import Contact from './components/Contact';
-import Footer from './components/Footer';
+import { GlobalCursor } from './components/GlobalCursor';
+import { AuroraBackground } from './components/aceternity/AuroraBackground';
+
+const BelowFold = lazy(() => import('./components/BelowFold'));
+
+function SectionFallback() {
+  return <div className="min-h-[min(40vh,320px)] w-full" aria-hidden />;
+}
 
 function AppContent() {
-  const [isLoading, setIsLoading] = useState(true);
-
   useEffect(() => {
-    document.title = "Harshit Kulkarni | Computer Science Student";
-    // Force scroll to top on mount
+    document.title = 'Harshit Kulkarni | Computer Science Student';
     window.history.scrollRestoration = 'manual';
-    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
-
-    // Simulate loading for assets
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1500);
-
-    return () => clearTimeout(timer);
+    window.scrollTo(0, 0);
   }, []);
 
-  if (isLoading) {
-    return <LoadingScreen />;
-  }
+  useEffect(() => {
+    const lenis = new Lenis();
+    lenis.on('scroll', ScrollTrigger.update);
+    let rafId = 0;
+    function raf(time: number) {
+      lenis.raf(time);
+      rafId = requestAnimationFrame(raf);
+    }
+    rafId = requestAnimationFrame(raf);
+    ScrollTrigger.refresh();
+    function onResize() {
+      ScrollTrigger.refresh();
+    }
+    window.addEventListener('resize', onResize, { passive: true });
+    return () => {
+      cancelAnimationFrame(rafId);
+      window.removeEventListener('resize', onResize);
+      lenis.destroy();
+    };
+  }, []);
+
+  useGSAP(() => {
+    gsap
+      .timeline()
+      .from('[data-site-nav]', {
+        y: -80,
+        opacity: 0,
+        duration: 0.8,
+        ease: 'power3.out',
+      })
+      .from(
+        '.hero-name .hero-char',
+        {
+          y: 120,
+          opacity: 0,
+          duration: 0.9,
+          stagger: 0.03,
+          ease: 'power4.out',
+        },
+        '-=0.4'
+      )
+      .from(
+        '.hero-role',
+        { x: -40, opacity: 0, duration: 0.7 },
+        '-=0.3'
+      )
+      .from(
+        '.hero-photo',
+        {
+          scale: 0.8,
+          opacity: 0,
+          duration: 0.8,
+          ease: 'back.out(1.7)',
+        },
+        '-=0.5'
+      )
+      .from(
+        '.hero-cta',
+        { y: 20, opacity: 0, duration: 0.5 },
+        '-=0.2'
+      );
+  }, []);
 
   return (
-    <div className="font-sans bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 text-white relative">
-      <ScrollProgress />
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="stars"></div>
-        <div className="twinkle"></div>
+    <div className="relative min-h-screen font-dm text-foreground">
+      <div className="pointer-events-none fixed inset-0 z-0">
+        <AuroraBackground className="h-full w-full" />
       </div>
+      <div
+        className="pointer-events-none fixed inset-0 z-[1] opacity-[0.16]"
+        style={{
+          backgroundImage: `
+            linear-gradient(to right, rgba(31, 31, 31, 0.85) 1px, transparent 1px),
+            linear-gradient(to bottom, rgba(31, 31, 31, 0.85) 1px, transparent 1px)
+          `,
+          backgroundSize: '48px 48px',
+        }}
+        aria-hidden
+      />
+      <GlobalCursor />
+      <ScrollProgress />
       <Navbar />
-      <main>
+      <main className="relative z-10 pt-20 md:pt-24">
         <Hero />
-        <Skills />
-        <Projects />
-        <Experience />
-        <Education />
-        <Certifications />
-        <OngoingProjects />
-        <ExtraCurriculars />
-        <References />
-        <Contact />
+        <Suspense fallback={<SectionFallback />}>
+          <BelowFold />
+        </Suspense>
       </main>
-      <Footer />
       <BackToTop />
     </div>
   );

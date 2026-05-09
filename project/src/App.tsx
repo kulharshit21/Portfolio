@@ -6,7 +6,6 @@ import Projects from './components/Projects';
 import Experience from './components/Experience';
 import Education from './components/Education';
 import Certifications from './components/Certifications';
-import OngoingProjects from './components/OngoingProjects';
 import ExtraCurriculars from './components/ExtraCurriculars';
 import References from './components/References';
 import Footer from './components/Footer';
@@ -30,7 +29,6 @@ function App() {
         <Experience />
         <Education />
         <Certifications />
-        <OngoingProjects />
         <ExtraCurriculars />
         <References />
       </main>

@@ -46,6 +46,13 @@ A modern, responsive, and accessible portfolio website built with React, TypeScr
 - ✅ **Resume Download Tracking** - Monitor engagement
 - ✅ **Event Tracking** - User interaction analytics
 
+#### Performance & Core Web Vitals (local verification)
+
+- Lazy below-fold bundle, deferred hero WebGL, Unsplash card images use `loading="lazy"` and `fetchPriority="low"`.
+- Vite `build.modulePreload` filters out the `three` chunk so initial navigation doesn’t prefetch WebGL.
+- `prefers-reduced-motion` disables heavy hero intro and tones down nav spotlight (CSS).
+- After `npm run build && npm run preview`, run Lighthouse in Chrome DevTools on the preview origin for LCP / CLS / TBT.
+
 #### Performance Optimizations
 - ✅ **will-change CSS property** - GPU acceleration for animations
 - ✅ **Lazy loading ready** - Prepared for code splitting

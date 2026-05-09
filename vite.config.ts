@@ -6,6 +6,17 @@ export default defineConfig({
   plugins: [react()],
   build: {
     target: 'es2020',
+    /** Defer heavy three.js download until the lazy hero chunk runs (no <link rel="modulepreload"> for it). */
+    modulePreload: {
+      resolveDependencies(_filename, deps) {
+        return deps.filter(
+          (dep) =>
+            !dep.includes('/three-') &&
+            !dep.includes('three-nXynixFc') &&
+            !dep.endsWith('/three.js')
+        );
+      },
+    },
     rollupOptions: {
       output: {
         manualChunks(id) {

@@ -178,6 +178,27 @@ const Navbar: React.FC = () => {
     [rebuildSectionBounds, updateActiveFromScroll]
   );
 
+  const clearNavSpot = useCallback((e: React.PointerEvent<HTMLElement>) => {
+    const t = e.currentTarget;
+    t.style.setProperty('--spot-x', '50%');
+    t.style.setProperty('--spot-y', '40%');
+  }, []);
+
+  const setNavSpot = useCallback((e: React.PointerEvent<HTMLElement>) => {
+    const t = e.currentTarget;
+    const r = t.getBoundingClientRect();
+    const w = r.width || 1;
+    const h = r.height || 1;
+    t.style.setProperty(
+      '--spot-x',
+      `${((e.clientX - r.left) / w) * 100}%`
+    );
+    t.style.setProperty(
+      '--spot-y',
+      `${((e.clientY - r.top) / h) * 100}%`
+    );
+  }, []);
+
   const overlayVariants = {
     hidden: { opacity: 0 },
     show: {
@@ -213,8 +234,10 @@ const Navbar: React.FC = () => {
       <header className="fixed left-0 right-0 top-0 z-40 flex justify-center pt-4 md:pt-6 pointer-events-none">
         <nav
           data-site-nav
-          className="pointer-events-auto flex w-[calc(100%-1rem)] max-w-[min(100rem,calc(100vw-1rem))] items-center gap-2 rounded-full border border-border/80 bg-surface/80 px-2 py-2 shadow-xl backdrop-blur-xl sm:gap-2.5 sm:px-3 md:py-2.5 lg:gap-3 lg:px-4"
+          className="site-nav-spotlight pointer-events-auto flex w-[calc(100%-1rem)] max-w-[min(100rem,calc(100vw-1rem))] items-center gap-2 rounded-full border border-border/80 bg-surface/80 px-2 py-2 shadow-xl backdrop-blur-xl sm:gap-2.5 sm:px-3 md:py-2.5 lg:gap-3 lg:px-4"
           aria-label="Main navigation"
+          onPointerMove={setNavSpot}
+          onPointerLeave={clearNavSpot}
         >
           <motion.a
             href="#home"

@@ -10,6 +10,7 @@ import ExtraCurriculars from './ExtraCurriculars';
 import References from './References';
 import Contact from './Contact';
 import Footer from './Footer';
+import { CurrentlyBuilding } from './CurrentlyBuilding';
 import { SectionDivider } from './SectionDivider';
 
 /** One lazy boundary = one JS chunk after hero; faster than N separate Suspense waits. */
@@ -58,6 +59,7 @@ export default function BelowFold() {
         <Contact />
       </div>
       <SectionDivider />
+      <CurrentlyBuilding />
       <div className="section-band section-band--odd">
         <Footer />
       </div>

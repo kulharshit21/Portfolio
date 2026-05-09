@@ -19,3 +19,10 @@ export const heroContent = {
   portraitAlt:
     'Professional headshot of Harshit Kulkarni, a Computer Science student and ML researcher, wearing a white shirt and smiling confidently',
 } as const;
+
+/** Slim strip above footer: what you are focused on learning / shipping. */
+export const siteStrip = {
+  eyebrow: 'Now exploring',
+  body:
+    'Agentic RAG eval patterns, lean model compression for edge deployment, and tighter Core Web Vitals on content-heavy SPAs. Open to research collaborations and high-impact internships.',
+} as const;

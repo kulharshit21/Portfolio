@@ -5,7 +5,10 @@ import HarshitPhoto from '../Harshit Photo.jpg';
 import { heroContent } from '../lib/data';
 import { cn, motionEase, viewportOnce } from '../lib/utils';
 import { lenisScrollToElement, NAV_SCROLL_OFFSET_PX } from '../lib/lenisRoot';
-import { HeroParticleCanvas } from './ParticleField';
+
+const HeroParticleCanvas = lazy(() =>
+  import('./ParticleField').then((m) => ({ default: m.HeroParticleCanvas }))
+);
 
 type NamePart = { readonly text: string; readonly emphasized: boolean };
 type NameLine = { readonly parts: readonly NamePart[] };
@@ -192,6 +195,7 @@ const Hero: React.FC = () => {
         className="pointer-events-none absolute inset-0 z-[1] opacity-[0.04]"
         style={{ filter: 'url(#hero-noise)' }}
       />
+      <div className="pointer-events-none hero-vignette absolute inset-0 z-[2]" aria-hidden />
 
       <a
         href="#skills"
@@ -200,7 +204,7 @@ const Hero: React.FC = () => {
         Skip to main content
       </a>
 
-      <div className="relative z-10 container mx-auto flex min-h-[calc(100svh-6rem)] min-h-[calc(100vh-6rem)] max-w-site flex-col px-4 sm:px-6 lg:px-8 3xl:px-10">
+      <div className="hero-chromatic-wrap relative z-10 container mx-auto flex min-h-[calc(100svh-6rem)] min-h-[calc(100vh-6rem)] max-w-site flex-col px-4 sm:px-6 lg:px-8 3xl:px-10">
         <div className="grid flex-1 grid-cols-1 items-center gap-8 lg:grid-cols-[minmax(0,1.02fr)_minmax(0,0.98fr)] lg:gap-8 xl:gap-10">
           <div className="min-w-0">
             <div className="flex gap-5 md:gap-6">
@@ -303,45 +307,16 @@ const Hero: React.FC = () => {
               </span>
             </h2>
 
-            <div className="mb-6 grid grid-cols-3 gap-3 border-b border-border/50 pb-6 sm:gap-4">
-              <div className="text-center">
-                <p className="font-display text-2xl font-normal text-accent-2 md:text-3xl">
-                  6
-                </p>
-                <p className="mt-1 font-dm text-xs text-muted md:text-sm">
-                  Projects
-                </p>
-              </div>
-              <div className="text-center">
-                <p className="font-display text-2xl font-normal text-accent-2 md:text-3xl">
-                  2+
-                </p>
-                <p className="mt-1 font-dm text-xs text-muted md:text-sm">
-                  Years Experience
-                </p>
-              </div>
-              <div className="text-center">
-                <p className="font-display text-2xl font-normal text-accent-2 md:text-3xl">
-                  2
-                </p>
-                <p className="mt-1 font-dm text-xs text-muted md:text-sm">
-                  Publications
-                </p>
-              </div>
-            </div>
-
             <div className="space-y-6">
               <div>
-                <p className="mb-4 text-foreground/90">
-                  Pre-final year Computer Science student with hands-on experience
-                  building web applications (React, Flask, PHP), working with
-                  databases (MySQL, PostgreSQL), and developing ML pipelines.
-                  Proven track record in Agile teams, delivering accessible,
-                  metric-driven solutions. Seeking to contribute to applied
-                  scientific computing and international research collaboration.
+                <p className="mb-4 text-foreground/90 leading-[1.65]">
+                  Pre-final year Computer Science student focused on AI/ML,
+                  software development, and cloud-backed applications. Experienced
+                  in building projects involving machine learning, computer vision,
+                  backend APIs, databases, and full-stack systems.
                 </p>
 
-                <div className="mt-6 space-y-2 text-foreground/90">
+                <div className="mt-6 space-y-2 text-foreground/90 leading-relaxed">
                   <div className="flex items-center gap-2">
                     <Globe size={18} className="text-accent-2" />
                     <span>Chennai, Tamil Nadu 603203</span>

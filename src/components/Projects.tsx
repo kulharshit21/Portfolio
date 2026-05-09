@@ -1,10 +1,11 @@
-import React, { useRef } from 'react';
-import { motion } from 'framer-motion';
-import { Github } from 'lucide-react';
+import React, { useRef, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { ChevronDown, Github } from 'lucide-react';
 import { useGSAP, gsap } from '../lib/gsapSetup';
 import { CardHoverGlow } from './aceternity/CardHoverGlow';
+import { MagneticAnchor } from './MagneticAnchor';
 import { portfolioProjects } from '../lib/projectsData';
-import { cn, sectionParallaxBg, sectionShell, sectionTitleMargin } from '../lib/utils';
+import { cn, sectionParallaxBg, sectionShell, sectionTitleMargin, motionEase } from '../lib/utils';
 import { bindSectionHeadingReveal, bindSectionParallax } from '../lib/sectionGsap';
 
 const projects = portfolioProjects;
@@ -18,6 +19,7 @@ const Projects: React.FC = () => {
   const sectionRef = useRef<HTMLElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
+  const [openCaseStudyId, setOpenCaseStudyId] = useState<number | null>(null);
 
   useGSAP(
     () => {
@@ -90,63 +92,159 @@ const Projects: React.FC = () => {
             ref={trackRef}
             className="projects-track flex w-max flex-nowrap gap-5 md:gap-7 will-change-transform"
           >
-            {projects.map((project) => (
-              <div key={project.id} className="project-card w-[min(88vw,420px)] shrink-0 md:w-[min(72vw,460px)]">
-                <CardHoverGlow className="flex h-full min-h-[440px] flex-col">
-                  <div className="relative h-44 flex-shrink-0 overflow-hidden md:h-48">
-                    <img
-                      src={project.image}
-                      alt=""
-                      className="h-full w-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-bg/90 via-transparent to-transparent" />
-                    <div className="absolute left-3 top-3 flex max-w-[calc(100%-1.5rem)] flex-wrap gap-1.5">
-                      {project.typeBadges.map((b) => (
-                        <span
-                          key={`${b.emoji}-${b.label}`}
-                          className="rounded-full border border-border/80 bg-bg/85 px-2.5 py-1 font-mono text-[11px] font-medium text-foreground shadow-sm backdrop-blur-sm md:text-xs"
+            {projects.map((project) => {
+              const gh = projectGithubHref(project.githubLink);
+              const hasCase = Boolean(project.caseStudy);
+              const caseOpen = openCaseStudyId === project.id;
+              return (
+                <div
+                  key={project.id}
+                  className="project-card w-[min(88vw,420px)] shrink-0 md:w-[min(72vw,460px)]"
+                >
+                  <CardHoverGlow className="flex h-full min-h-[460px] flex-col md:min-h-[480px]">
+                    <div className="relative h-44 flex-shrink-0 overflow-hidden md:h-48">
+                      <img
+                        src={project.image}
+                        alt=""
+                        className="h-full w-full object-cover"
+                        loading="lazy"
+                        decoding="async"
+                        fetchPriority="low"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-bg/90 via-transparent to-transparent" />
+                      <div className="absolute left-3 top-3 flex max-w-[calc(100%-1.5rem)] flex-wrap gap-1.5">
+                        {project.typeBadges.map((b) => (
+                          <span
+                            key={`${b.emoji}-${b.label}`}
+                            className="rounded-full border border-border/80 bg-bg/85 px-2.5 py-1 font-mono text-[11px] font-medium text-foreground shadow-sm backdrop-blur-sm md:text-xs"
+                          >
+                            {b.emoji} {b.label}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="flex flex-1 flex-col p-5">
+                      <p className="mb-1 font-mono text-[11px] text-accent-2 md:text-xs">
+                        {project.period ?? '\u00A0'}
+                      </p>
+                      <h3 className="mb-1.5 font-display text-lg font-normal leading-snug text-foreground md:text-xl">
+                        {project.title}
+                      </h3>
+                      <p className="mb-2 font-dm text-[13px] font-medium leading-snug text-accent-2/95 md:text-sm">
+                        {project.outcome}
+                      </p>
+                      <p className="mb-4 flex-1 font-dm text-sm leading-relaxed text-muted">
+                        {project.description}
+                      </p>
+
+                      {hasCase ? (
+                        <div className="mb-3 border-t border-border/50 pt-3">
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setOpenCaseStudyId((prev) =>
+                                prev === project.id ? null : project.id
+                              )
+                            }
+                            className="flex w-full items-center justify-between gap-2 rounded-lg border border-border/70 bg-bg/40 px-3 py-2 text-left font-mono text-[11px] font-medium text-foreground transition-colors hover:border-accent-2/40 hover:bg-accent-2/5 md:text-xs"
+                            aria-expanded={caseOpen}
+                            aria-controls={`case-study-${project.id}`}
+                            id={`case-study-trigger-${project.id}`}
+                          >
+                            <span>Case study snapshot</span>
+                            <ChevronDown
+                              className={cn(
+                                'h-4 w-4 shrink-0 text-accent-2 transition-transform duration-300',
+                                caseOpen && 'rotate-180'
+                              )}
+                              strokeWidth={2}
+                              aria-hidden
+                            />
+                          </button>
+                          <AnimatePresence initial={false}>
+                            {caseOpen && project.caseStudy ? (
+                              <motion.div
+                                key="panel"
+                                id={`case-study-${project.id}`}
+                                role="region"
+                                aria-labelledby={`case-study-trigger-${project.id}`}
+                                initial={{ height: 0, opacity: 0 }}
+                                animate={{ height: 'auto', opacity: 1 }}
+                                exit={{ height: 0, opacity: 0 }}
+                                transition={{
+                                  duration: 0.35,
+                                  ease: motionEase,
+                                }}
+                                className="overflow-hidden"
+                              >
+                                <dl className="mt-3 space-y-3 rounded-lg border border-border/40 bg-surface/50 p-3 font-dm text-xs leading-relaxed text-muted md:text-[13px]">
+                                  <div>
+                                    <dt className="font-semibold text-foreground/90">
+                                      Problem
+                                    </dt>
+                                    <dd className="mt-0.5">
+                                      {project.caseStudy.problem}
+                                    </dd>
+                                  </div>
+                                  <div>
+                                    <dt className="font-semibold text-foreground/90">
+                                      Role
+                                    </dt>
+                                    <dd className="mt-0.5">
+                                      {project.caseStudy.role}
+                                    </dd>
+                                  </div>
+                                  <div>
+                                    <dt className="font-semibold text-foreground/90">
+                                      Stack
+                                    </dt>
+                                    <dd className="mt-0.5">
+                                      {project.caseStudy.stack}
+                                    </dd>
+                                  </div>
+                                  <div>
+                                    <dt className="font-semibold text-foreground/90">
+                                      Result
+                                    </dt>
+                                    <dd className="mt-0.5">
+                                      {project.caseStudy.result}
+                                    </dd>
+                                  </div>
+                                </dl>
+                              </motion.div>
+                            ) : null}
+                          </AnimatePresence>
+                        </div>
+                      ) : null}
+
+                      <div className="mb-4 flex flex-wrap gap-2">
+                        {project.technologies.map((tech) => (
+                          <span
+                            key={tech}
+                            className="rounded-md border border-border/60 bg-border/40 px-2 py-1 font-mono text-xs text-muted"
+                          >
+                            {tech}
+                          </span>
+                        ))}
+                      </div>
+                      <div className="mt-auto flex flex-wrap gap-4">
+                        <MagneticAnchor
+                          href={gh}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label={`${project.title} on GitHub`}
+                          className="inline-flex items-center gap-1.5 font-mono text-xs text-accent-2"
+                          maxOffset={8}
                         >
-                          {b.emoji} {b.label}
-                        </span>
-                      ))}
+                          <Github className="h-4 w-4" />
+                          GitHub
+                        </MagneticAnchor>
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex flex-1 flex-col p-5">
-                    <p className="mb-1 font-mono text-[11px] text-accent-2 md:text-xs">
-                      {project.period ?? '\u00A0'}
-                    </p>
-                    <h3 className="mb-2 font-display text-lg font-normal leading-snug text-foreground md:text-xl">
-                      {project.title}
-                    </h3>
-                    <p className="mb-4 flex-1 font-dm text-sm leading-relaxed text-muted">
-                      {project.description}
-                    </p>
-                    <div className="mb-4 flex flex-wrap gap-2">
-                      {project.technologies.map((tech) => (
-                        <span
-                          key={tech}
-                          className="rounded-md border border-border/60 bg-border/40 px-2 py-1 font-mono text-xs text-muted"
-                        >
-                          {tech}
-                        </span>
-                      ))}
-                    </div>
-                    <div className="flex flex-wrap gap-4">
-                      <motion.a
-                        href={projectGithubHref(project.githubLink)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        whileHover={{ y: -2 }}
-                        className="inline-flex items-center gap-1.5 font-mono text-xs text-accent-2"
-                      >
-                        <Github className="h-4 w-4" />
-                        GitHub
-                      </motion.a>
-                    </div>
-                  </div>
-                </CardHoverGlow>
-              </div>
-            ))}
+                  </CardHoverGlow>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>

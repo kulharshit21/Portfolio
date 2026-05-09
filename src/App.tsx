@@ -31,6 +31,27 @@ function stripHashOnReload() {
 }
 
 function AppContent() {
+  const [cursorOn, setCursorOn] = useState(false);
+
+  useEffect(() => {
+    if (!window.matchMedia('(pointer: fine)').matches) return;
+    let cancelled = false;
+    const run = () => {
+      if (!cancelled) setCursorOn(true);
+    };
+    const idleId =
+      typeof requestIdleCallback !== 'undefined'
+        ? requestIdleCallback(run, { timeout: 2800 })
+        : null;
+    const timeoutId =
+      idleId == null ? window.setTimeout(run, 1800) : null;
+    return () => {
+      cancelled = true;
+      if (idleId != null) cancelIdleCallback(idleId);
+      if (timeoutId != null) window.clearTimeout(timeoutId);
+    };
+  }, []);
+
   useEffect(() => {
     document.title = 'Harshit Kulkarni | Computer Science Student';
     window.history.scrollRestoration = 'manual';

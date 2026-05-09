@@ -1,36 +1,61 @@
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { useRef } from 'react';
 import { User, Mail, Linkedin } from 'lucide-react';
-import { cn, motionEase, sectionShell, sectionTitleMargin, viewportOnce } from '../lib/utils';
+import { useGSAP, gsap } from '../lib/gsapSetup';
+import {
+  cn,
+  sectionParallaxBg,
+  sectionShell,
+  sectionTitleMargin,
+} from '../lib/utils';
+import { bindSectionHeadingReveal, bindSectionParallax } from '../lib/sectionGsap';
 
 const References: React.FC = () => {
+  const sectionRef = useRef<HTMLElement>(null);
+
+  useGSAP(
+    () => {
+      if (!sectionRef.current) return;
+      const section = sectionRef.current;
+      bindSectionParallax(section);
+      bindSectionHeadingReveal(section);
+      gsap.from(section.querySelectorAll('.ref-card'), {
+        y: 40,
+        opacity: 0,
+        duration: 0.8,
+        stagger: 0.15,
+        ease: 'power3.out',
+        scrollTrigger: {
+          trigger: section,
+          start: 'top 80%',
+          once: true,
+        },
+      });
+    },
+    { scope: sectionRef }
+  );
+
   return (
-    <section id="references" className={sectionShell}>
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.h2
+    <section
+      ref={sectionRef}
+      id="references"
+      className={cn('references-section relative overflow-hidden', sectionShell)}
+    >
+      <div className={sectionParallaxBg} aria-hidden />
+      <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8">
+        <h2
           className={cn(
             sectionTitleMargin,
-            'text-center font-display text-3xl font-normal md:text-4xl'
+            'section-heading text-center font-display text-3xl font-normal md:text-4xl'
           )}
-          initial={{ opacity: 0, x: -20 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={viewportOnce}
-          transition={{ duration: 0.65, ease: motionEase }}
         >
           <span className="relative inline-block">
             References
-            <span className="absolute bottom-0 left-0 h-1 w-full origin-left bg-accent-2" />
+            <span className="heading-underline absolute bottom-0 left-0 h-1 w-full origin-left bg-accent-2" />
           </span>
-        </motion.h2>
+        </h2>
 
         <div className="mx-auto grid max-w-4xl grid-cols-1 gap-6 md:grid-cols-2">
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={viewportOnce}
-            transition={{ duration: 0.65, ease: motionEase }}
-            className="overflow-hidden rounded-xl border border-border bg-surface shadow-md"
-          >
+          <div className="ref-card overflow-hidden rounded-xl border border-border bg-surface shadow-md">
             <div className="p-8">
               <div className="flex flex-col gap-8 md:flex-row md:items-center">
                 <div className="mx-auto flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-full bg-border/60 md:mx-0">
@@ -74,14 +99,8 @@ const References: React.FC = () => {
                 </div>
               </div>
             </div>
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={viewportOnce}
-            transition={{ duration: 0.65, ease: motionEase, delay: 0.06 }}
-            className="overflow-hidden rounded-xl border border-border bg-surface shadow-md"
-          >
+          </div>
+          <div className="ref-card overflow-hidden rounded-xl border border-border bg-surface shadow-md">
             <div className="p-8">
               <div className="flex flex-col gap-8 md:flex-row md:items-center">
                 <div className="mx-auto flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-full bg-border/60 md:mx-0">
@@ -111,7 +130,7 @@ const References: React.FC = () => {
                 </div>
               </div>
             </div>
-          </motion.div>
+          </div>
         </div>
       </div>
     </section>

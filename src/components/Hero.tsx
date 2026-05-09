@@ -197,8 +197,8 @@ const Hero: React.FC = () => {
         Skip to main content
       </a>
 
-      <div className="relative z-10 container mx-auto flex min-h-[calc(100vh-6rem)] max-w-6xl flex-col px-4 sm:px-6 lg:px-8">
-        <div className="grid flex-1 grid-cols-1 items-center gap-10 lg:grid-cols-[minmax(0,55fr)_minmax(0,45fr)] lg:gap-12">
+      <div className="relative z-10 container mx-auto flex min-h-[calc(100vh-6rem)] max-w-7xl flex-col px-4 sm:px-6 lg:px-8">
+        <div className="grid flex-1 grid-cols-1 items-center gap-8 lg:grid-cols-[minmax(0,1.02fr)_minmax(0,0.98fr)] lg:gap-8 xl:gap-10">
           <div className="min-w-0">
             <div className="flex gap-5 md:gap-6">
               <motion.div
@@ -210,7 +210,7 @@ const Hero: React.FC = () => {
                   ease: motionEase,
                   delay: 0.12,
                 }}
-                style={{ height: 'clamp(4.95rem, 17.6vw, 9.9rem)' }}
+                style={{ height: 'clamp(5rem, 18vw, 10.75rem)' }}
                 aria-hidden
               />
               <div className="min-w-0 flex-1">
@@ -232,9 +232,9 @@ const Hero: React.FC = () => {
             </div>
           </div>
 
-          <div className="mx-auto flex justify-center lg:mx-0 lg:justify-end">
+          <div className="flex justify-center lg:items-center lg:justify-center">
             <div className="hero-photo relative">
-              <div className="relative size-[min(12.65rem,44vw)] md:size-[14.25rem] lg:size-[15.4rem]">
+              <div className="relative size-[min(14.25rem,48vw)] md:size-[16.5rem] lg:size-[18rem] xl:size-[19.25rem]">
                 <motion.div
                   className="pointer-events-none absolute inset-0 rounded-full shadow-[0_0_42px_rgba(20,184,166,0.18)]"
                   style={{

@@ -1,6 +1,13 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { motion } from 'framer-motion';
-import { cn, motionEase, sectionShell, sectionTitleMargin, viewportOnce } from '../lib/utils';
+import { useGSAP, gsap, ScrollTrigger } from '../lib/gsapSetup';
+import {
+  cn,
+  sectionParallaxBg,
+  sectionShell,
+  sectionTitleMargin,
+} from '../lib/utils';
+import { bindSectionHeadingReveal, bindSectionParallax } from '../lib/sectionGsap';
 
 interface Certification {
   id: number;
@@ -68,39 +75,113 @@ const certifications: Certification[] = [
 ];
 
 const Certifications: React.FC = () => {
+  const sectionRef = useRef<HTMLElement>(null);
+
+  useGSAP(
+    () => {
+      if (!sectionRef.current) return;
+      const section = sectionRef.current;
+      bindSectionParallax(section);
+      bindSectionHeadingReveal(section);
+
+      const cards = gsap.utils.toArray<HTMLElement>(
+        section.querySelectorAll('.cert-card')
+      );
+      if (cards.length === 0) return;
+
+      const prefersReduced =
+        window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ??
+        false;
+
+      if (prefersReduced) {
+        gsap.from(cards, {
+          rotateY: 90,
+          opacity: 0,
+          duration: 0.5,
+          stagger: 0.08,
+          ease: 'power2.out',
+          transformPerspective: 800,
+          scrollTrigger: {
+            trigger: section,
+            start: 'top 80%',
+            toggleActions: 'play none play none',
+          },
+        });
+        return;
+      }
+
+      gsap.set(cards, {
+        rotateY: 88,
+        opacity: 0,
+        transformPerspective: 800,
+      });
+
+      const tl = gsap.timeline({ paused: true });
+
+      cards.forEach((card, i) => {
+        tl.to(
+          card,
+          {
+            rotateY: 0,
+            opacity: 1,
+            ease: 'none',
+            duration: 1,
+          },
+          i * 0.42
+        );
+      });
+
+      let peakProgress = 0;
+
+      ScrollTrigger.create({
+        trigger: section,
+        start: 'top 78%',
+        end: 'bottom 22%',
+        invalidateOnRefresh: true,
+        onUpdate: (self) => {
+          peakProgress = Math.max(peakProgress, self.progress);
+          tl.progress(peakProgress);
+        },
+        onLeaveBack: () => {
+          peakProgress = 0;
+          tl.progress(0);
+          gsap.set(cards, {
+            rotateY: 88,
+            opacity: 0,
+            transformPerspective: 800,
+          });
+        },
+      });
+    },
+    { scope: sectionRef }
+  );
+
   return (
-    <section id="certifications" className={sectionShell}>
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.h2
+    <section
+      ref={sectionRef}
+      id="certifications"
+      className={cn('certs-section relative overflow-hidden', sectionShell)}
+    >
+      <div className={sectionParallaxBg} aria-hidden />
+      <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8">
+        <h2
           className={cn(
             sectionTitleMargin,
-            'text-center font-display text-3xl font-normal md:text-4xl'
+            'section-heading text-center font-display text-3xl font-normal md:text-4xl'
           )}
-          initial={{ opacity: 0, x: -20 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={viewportOnce}
-          transition={{ duration: 0.65, ease: motionEase }}
         >
           <span className="relative inline-block">
             Certificates & Training
-            <span className="absolute bottom-0 left-0 h-1 w-full origin-left bg-accent-2" />
+            <span className="heading-underline absolute bottom-0 left-0 h-1 w-full origin-left bg-accent-2" />
           </span>
-        </motion.h2>
+        </h2>
 
-        <div className="mx-auto max-w-5xl">
+        <div className="mx-auto max-w-5xl [perspective:800px]">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            {certifications.map((cert, index) => (
-              <motion.article
+            {certifications.map((cert) => (
+              <article
                 key={cert.id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={viewportOnce}
-                transition={{
-                  duration: 0.55,
-                  ease: motionEase,
-                  delay: index * 0.04,
-                }}
-                className="flex flex-col rounded-xl border border-border bg-surface p-5 shadow-md"
+                className="cert-card glass-card flex flex-col rounded-xl p-5 [transform-style:preserve-3d]"
               >
                 <div className="mb-4 flex items-center gap-3 border-b border-border/80 pb-4">
                   <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-border/60 bg-bg/60 p-2">
@@ -140,7 +221,7 @@ const Certifications: React.FC = () => {
                     Badge ↗
                   </motion.a>
                 </div>
-              </motion.article>
+              </article>
             ))}
           </div>
         </div>

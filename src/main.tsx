@@ -1,6 +1,7 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
+import './lib/gsapSetup';
 import './index.css';
 
 // Disable browser scroll restoration

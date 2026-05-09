@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   Menu,
@@ -7,7 +7,11 @@ import {
   Layers,
   FolderKanban,
   Briefcase,
+  BadgeCheck,
   GraduationCap,
+  BookOpen,
+  Trophy,
+  BookMarked,
   Mail,
   FileText,
 } from 'lucide-react';
@@ -18,9 +22,29 @@ const navItems = [
   { label: 'Skills', target: '#skills', Icon: Layers },
   { label: 'Projects', target: '#projects', Icon: FolderKanban },
   { label: 'Experience', target: '#experience', Icon: Briefcase },
+  { label: 'Certificates', target: '#certifications', Icon: BadgeCheck },
   { label: 'Education', target: '#education', Icon: GraduationCap },
+  { label: 'Publications', target: '#publications', Icon: BookOpen },
+  {
+    label: 'Extra-Curriculars',
+    target: '#extra-curriculars',
+    Icon: Trophy,
+  },
+  { label: 'References', target: '#references', Icon: BookMarked },
   { label: 'Contact', target: '#contact', Icon: Mail },
 ] as const;
+
+/** IDs in scroll order; scroll-spy picks the last one whose top we've passed. */
+const NAV_SECTION_IDS = navItems.map((item) =>
+  item.target.replace('#', '')
+) as readonly string[];
+
+/** ~fixed header + padding so the labeled section matches what the user sees. */
+const SCROLL_ACTIVE_OFFSET_PX = 112;
+
+function readScrollY(): number {
+  return window.scrollY || document.documentElement.scrollTop || 0;
+}
 
 const resumeUrl =
   'https://drive.google.com/file/d/1-mk6PvKIvfkX3H4VDd8DaGOC3oGzlkwp/view?usp=sharing';
@@ -31,33 +55,42 @@ const Navbar: React.FC = () => {
 
   const toggleMenu = () => setIsOpen((o) => !o);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      const sections = document.querySelectorAll('section[id]');
-      const scrollPosition = window.scrollY + 100;
-
-      sections.forEach((section) => {
-        const sectionTop = (section as HTMLElement).offsetTop;
-        const sectionHeight = (section as HTMLElement).offsetHeight;
-        const sectionId = section.getAttribute('id') || '';
-
-        if (
-          scrollPosition >= sectionTop &&
-          scrollPosition < sectionTop + sectionHeight
-        ) {
-          setActiveSection(sectionId);
-        }
-      });
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+  const updateActiveFromScroll = useCallback(() => {
+    const y = readScrollY() + SCROLL_ACTIVE_OFFSET_PX;
+    let current = NAV_SECTION_IDS[0];
+    for (const id of NAV_SECTION_IDS) {
+      const el = document.getElementById(id);
+      if (!el) continue;
+      const top = el.getBoundingClientRect().top + readScrollY();
+      if (y >= top) current = id;
+    }
+    setActiveSection((prev) => (prev === current ? prev : current));
   }, []);
 
-  const scrollToSection = (target: string) => {
-    document.querySelector(target)?.scrollIntoView({ behavior: 'smooth' });
-    setIsOpen(false);
-  };
+  useEffect(() => {
+    updateActiveFromScroll();
+    window.addEventListener('scroll', updateActiveFromScroll, { passive: true });
+    window.addEventListener('resize', updateActiveFromScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', updateActiveFromScroll);
+      window.removeEventListener('resize', updateActiveFromScroll);
+    };
+  }, [updateActiveFromScroll]);
+
+  const scrollToSection = useCallback(
+    (target: string) => {
+      const id = target.replace(/^#/, '');
+      setActiveSection(id);
+      setIsOpen(false);
+      document.querySelector<HTMLElement>(target)?.scrollIntoView({
+        behavior: 'smooth',
+      });
+      [80, 320, 700].forEach((ms) =>
+        window.setTimeout(updateActiveFromScroll, ms)
+      );
+    },
+    [updateActiveFromScroll]
+  );
 
   const overlayVariants = {
     hidden: { opacity: 0 },

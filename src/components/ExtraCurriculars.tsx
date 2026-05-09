@@ -1,37 +1,65 @@
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { useRef } from 'react';
 import { Trophy, Users, CheckCircle } from 'lucide-react';
-import { cn, motionEase, sectionShell, sectionTitleMargin, viewportOnce } from '../lib/utils';
+import { useGSAP, gsap } from '../lib/gsapSetup';
+import {
+  cn,
+  sectionParallaxBg,
+  sectionShell,
+  sectionTitleMargin,
+} from '../lib/utils';
+import { bindSectionHeadingReveal, bindSectionParallax } from '../lib/sectionGsap';
 
 const ExtraCurriculars: React.FC = () => {
+  const sectionRef = useRef<HTMLElement>(null);
+
+  useGSAP(
+    () => {
+      if (!sectionRef.current) return;
+      const section = sectionRef.current;
+      bindSectionParallax(section);
+      bindSectionHeadingReveal(section);
+      gsap.from(section.querySelectorAll('.extra-card'), {
+        y: 48,
+        opacity: 0,
+        duration: 0.75,
+        stagger: 0.12,
+        ease: 'power3.out',
+        scrollTrigger: {
+          trigger: section,
+          start: 'top 78%',
+          once: true,
+        },
+      });
+    },
+    { scope: sectionRef }
+  );
+
   return (
-    <section id="extra-curriculars" className={sectionShell}>
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.h2
+    <section
+      ref={sectionRef}
+      id="extra-curriculars"
+      className={cn(
+        'extra-curriculars-section relative overflow-hidden',
+        sectionShell
+      )}
+    >
+      <div className={sectionParallaxBg} aria-hidden />
+      <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8">
+        <h2
           className={cn(
             sectionTitleMargin,
-            'text-center font-display text-3xl font-normal md:text-4xl'
+            'section-heading text-center font-display text-3xl font-normal md:text-4xl'
           )}
-          initial={{ opacity: 0, x: -20 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={viewportOnce}
-          transition={{ duration: 0.65, ease: motionEase }}
         >
           <span className="relative inline-block">
             Extra-Curricular Activities
-            <span className="absolute bottom-0 left-0 h-1 w-full origin-left bg-accent-2" />
+            <span className="heading-underline absolute bottom-0 left-0 h-1 w-full origin-left bg-accent-2" />
           </span>
-        </motion.h2>
+        </h2>
 
-        <div className="mx-auto max-w-4xl">
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-            <motion.div
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={viewportOnce}
-              transition={{ duration: 0.65, ease: motionEase }}
-              className="rounded-xl border border-border bg-surface p-8 text-center shadow-sm"
-            >
+        <div className="mx-auto w-full max-w-7xl">
+          <div className="grid grid-cols-1 gap-6 sm:gap-7 md:grid-cols-3 md:gap-8 lg:gap-10">
+            <div className="extra-card flex min-h-full flex-col rounded-xl border border-border bg-surface p-7 text-center shadow-sm sm:p-8 md:p-9">
               <div className="mb-4 flex justify-center">
                 <div className="rounded-full bg-border/80 p-4">
                   <Trophy size={32} className="text-accent-2" />
@@ -57,15 +85,9 @@ const ExtraCurriculars: React.FC = () => {
               <p className="mt-4 font-dm text-muted">
                 Active participation in college sports events and tournaments.
               </p>
-            </motion.div>
+            </div>
 
-            <motion.div
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={viewportOnce}
-              transition={{ duration: 0.65, ease: motionEase, delay: 0.06 }}
-              className="rounded-xl border border-border bg-surface p-8 text-center shadow-sm"
-            >
+            <div className="extra-card flex min-h-full flex-col rounded-xl border border-border bg-surface p-7 text-center shadow-sm sm:p-8 md:p-9">
               <div className="mb-4 flex justify-center">
                 <div className="rounded-full bg-border/80 p-4">
                   <Users size={32} className="text-accent-2" />
@@ -79,15 +101,9 @@ const ExtraCurriculars: React.FC = () => {
                 <p>Active participation in technical events and workshops.</p>
                 <p>Networking and learning from industry professionals.</p>
               </div>
-            </motion.div>
+            </div>
 
-            <motion.div
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={viewportOnce}
-              transition={{ duration: 0.65, ease: motionEase, delay: 0.12 }}
-              className="rounded-xl border border-border bg-surface p-8 text-center shadow-sm"
-            >
+            <div className="extra-card flex min-h-full flex-col rounded-xl border border-border bg-surface p-7 text-center shadow-sm sm:p-8 md:p-9">
               <div className="mb-4 flex justify-center">
                 <div className="rounded-full bg-border/80 p-4">
                   <svg
@@ -119,7 +135,7 @@ const ExtraCurriculars: React.FC = () => {
                 <p>Collaborative problem-solving and strategic planning.</p>
                 <p>Enjoying the challenges of team coordination and execution.</p>
               </div>
-            </motion.div>
+            </div>
           </div>
         </div>
       </div>

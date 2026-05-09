@@ -2,13 +2,13 @@ import { lazy, Suspense, useEffect } from 'react';
 import Lenis from 'lenis';
 import 'lenis/dist/lenis.css';
 import { gsap, ScrollTrigger, useGSAP } from './lib/gsapSetup';
+import { setLenisInstance, snapScrollTop } from './lib/lenisRoot';
 import ErrorBoundary from './components/ErrorBoundary';
 import ScrollProgress from './components/ScrollProgress';
 import BackToTop from './components/BackToTop';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import { GlobalCursor } from './components/GlobalCursor';
-import { AuroraBackground } from './components/aceternity/AuroraBackground';
 
 const BelowFold = lazy(() => import('./components/BelowFold'));
 
@@ -16,15 +16,34 @@ function SectionFallback() {
   return <div className="min-h-[min(40vh,320px)] w-full" aria-hidden />;
 }
 
+function stripHashOnReload() {
+  const nav = performance.getEntriesByType(
+    'navigation'
+  )[0] as PerformanceNavigationTiming | undefined;
+  if (nav?.type !== 'reload' || !window.location.hash) return;
+  history.replaceState(
+    null,
+    '',
+    `${window.location.pathname}${window.location.search}`
+  );
+}
+
 function AppContent() {
   useEffect(() => {
     document.title = 'Harshit Kulkarni | Computer Science Student';
     window.history.scrollRestoration = 'manual';
+    stripHashOnReload();
     window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
   }, []);
 
   useEffect(() => {
     const lenis = new Lenis();
+    setLenisInstance(lenis);
+    const snap = () => snapScrollTop();
+
+    snap();
     lenis.on('scroll', ScrollTrigger.update);
     let rafId = 0;
     function raf(time: number) {
@@ -32,14 +51,36 @@ function AppContent() {
       rafId = requestAnimationFrame(raf);
     }
     rafId = requestAnimationFrame(raf);
-    ScrollTrigger.refresh();
+
+    queueMicrotask(snap);
+    requestAnimationFrame(() => {
+      snap();
+      ScrollTrigger.refresh();
+      snap();
+      requestAnimationFrame(snap);
+    });
+
+    function onLoad() {
+      snap();
+      ScrollTrigger.refresh();
+      snap();
+    }
+    function onPageShow(e: PageTransitionEvent) {
+      if (e.persisted) snap();
+    }
+    window.addEventListener('load', onLoad, { once: true });
+    window.addEventListener('pageshow', onPageShow);
+
     function onResize() {
       ScrollTrigger.refresh();
     }
     window.addEventListener('resize', onResize, { passive: true });
     return () => {
       cancelAnimationFrame(rafId);
+      window.removeEventListener('load', onLoad);
+      window.removeEventListener('pageshow', onPageShow);
       window.removeEventListener('resize', onResize);
+      setLenisInstance(null);
       lenis.destroy();
     };
   }, []);
@@ -87,21 +128,12 @@ function AppContent() {
   }, []);
 
   return (
-    <div className="relative min-h-screen font-dm text-foreground">
-      <div className="pointer-events-none fixed inset-0 z-0">
-        <AuroraBackground className="h-full w-full" />
+    <div className="relative isolate min-h-screen font-dm text-foreground">
+      <div className="ambient-orbs" aria-hidden>
+        <div className="ambient-orb ambient-orb--1" />
+        <div className="ambient-orb ambient-orb--2" />
+        <div className="ambient-orb ambient-orb--3" />
       </div>
-      <div
-        className="pointer-events-none fixed inset-0 z-[1] opacity-[0.16]"
-        style={{
-          backgroundImage: `
-            linear-gradient(to right, rgba(31, 31, 31, 0.85) 1px, transparent 1px),
-            linear-gradient(to bottom, rgba(31, 31, 31, 0.85) 1px, transparent 1px)
-          `,
-          backgroundSize: '48px 48px',
-        }}
-        aria-hidden
-      />
       <GlobalCursor />
       <ScrollProgress />
       <Navbar />

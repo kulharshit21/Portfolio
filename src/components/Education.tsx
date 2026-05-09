@@ -1,7 +1,13 @@
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { useRef } from 'react';
 import { GraduationCap, Calendar } from 'lucide-react';
-import { cn, motionEase, sectionShell, sectionTitleMargin, viewportOnce } from '../lib/utils';
+import { useGSAP, gsap } from '../lib/gsapSetup';
+import {
+  cn,
+  sectionParallaxBg,
+  sectionShell,
+  sectionTitleMargin,
+} from '../lib/utils';
+import { bindSectionHeadingReveal, bindSectionParallax } from '../lib/sectionGsap';
 
 interface Education {
   id: number;
@@ -36,39 +42,60 @@ const education: Education[] = [
 ];
 
 const Education: React.FC = () => {
+  const sectionRef = useRef<HTMLElement>(null);
+
+  useGSAP(
+    () => {
+      if (!sectionRef.current) return;
+      const section = sectionRef.current;
+      bindSectionParallax(section);
+      bindSectionHeadingReveal(section);
+
+      gsap.from(section.querySelectorAll('.edu-card'), {
+        scale: 0.85,
+        opacity: 0,
+        duration: 0.7,
+        stagger: 0.15,
+        ease: 'back.out(1.7)',
+        scrollTrigger: {
+          trigger: section,
+          start: 'top 80%',
+          once: true,
+        },
+      });
+    },
+    { scope: sectionRef }
+  );
+
   return (
-    <section id="education" className={sectionShell}>
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.h2
+    <section
+      ref={sectionRef}
+      id="education"
+      className={cn(
+        'education-section relative overflow-hidden',
+        sectionShell
+      )}
+    >
+      <div className={sectionParallaxBg} aria-hidden />
+      <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8">
+        <h2
           className={cn(
             sectionTitleMargin,
-            'text-center font-display text-3xl font-normal md:text-4xl'
+            'section-heading text-center font-display text-3xl font-normal md:text-4xl'
           )}
-          initial={{ opacity: 0, x: -20 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={viewportOnce}
-          transition={{ duration: 0.65, ease: motionEase }}
         >
           <span className="relative inline-block">
             Education
-            <span className="absolute bottom-0 left-0 h-1 w-full origin-left bg-accent-2" />
+            <span className="heading-underline absolute bottom-0 left-0 h-1 w-full origin-left bg-accent-2" />
           </span>
-        </motion.h2>
+        </h2>
 
         <div className="mx-auto max-w-6xl">
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
-            {education.map((edu, index) => (
-              <motion.div
+            {education.map((edu) => (
+              <div
                 key={edu.id}
-                initial={{ opacity: 0, y: 28 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={viewportOnce}
-                transition={{
-                  duration: 0.65,
-                  ease: motionEase,
-                  delay: index * 0.08,
-                }}
-                className="rounded-xl border border-border bg-surface p-5 text-center shadow-md"
+                className="edu-card glass-card rounded-xl p-5 text-center"
               >
                 <GraduationCap
                   size={28}
@@ -87,7 +114,7 @@ const Education: React.FC = () => {
                 <span className="inline-block rounded-full bg-border/80 px-3 py-1 font-dm text-sm font-semibold text-foreground">
                   {edu.score}
                 </span>
-              </motion.div>
+              </div>
             ))}
           </div>
         </div>

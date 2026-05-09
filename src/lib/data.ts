@@ -14,7 +14,7 @@ export const heroContent = {
       parts: [{ text: 'Kulkarni', emphasized: true }],
     },
   ] as const,
-  role: 'ML Researcher | Full-Stack Developer | IEEE Published Author',
+  role: 'AI Engineer in Training · 4× Certified · IEEE Published · Open to Internships',
   getInTouchLabel: 'Get in Touch',
   portraitAlt:
     'Professional headshot of Harshit Kulkarni, a Computer Science student and ML researcher, wearing a white shirt and smiling confidently',

@@ -67,7 +67,7 @@ app.post('/api/contact', async (req, res) => {
           
           <p style="margin-top: 30px;">Best regards,<br/>
           <strong>Harshit Kulkarni</strong><br/>
-          <span style="color: #6B7280; font-size: 14px;">ML Researcher | Full-Stack Developer | IEEE Published Author</span></p>
+          <span style="color: #6B7280; font-size: 14px;">AI Engineer in Training · 4× Certified · IEEE Published · Open to Internships</span></p>
           
           <hr style="border: none; border-top: 1px solid #E5E7EB; margin: 30px 0;">
           

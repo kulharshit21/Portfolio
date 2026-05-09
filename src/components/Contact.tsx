@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   Copy,
@@ -10,13 +10,16 @@ import {
   Loader2,
   PartyPopper,
 } from 'lucide-react';
+import { useGSAP, gsap } from '../lib/gsapSetup';
 import {
   cn,
   motionEase,
+  sectionParallaxBg,
   sectionShell,
   sectionTitleMargin,
   viewportOnce,
 } from '../lib/utils';
+import { bindSectionHeadingReveal, bindSectionParallax } from '../lib/sectionGsap';
 
 type FormStatus = 'idle' | 'sending' | 'success' | 'error';
 
@@ -101,6 +104,31 @@ const Contact: React.FC = () => {
   const [status, setStatus] = useState<FormStatus>('idle');
   const [errorMsg, setErrorMsg] = useState('');
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const sectionRef = useRef<HTMLElement>(null);
+
+  useGSAP(
+    () => {
+      if (!sectionRef.current) return;
+      const section = sectionRef.current;
+      bindSectionParallax(section);
+      bindSectionHeadingReveal(section);
+      const formEl = section.querySelector('.contact-form');
+      if (formEl) {
+        gsap.from(formEl, {
+          y: 60,
+          opacity: 0,
+          duration: 0.9,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: section,
+            start: 'top 80%',
+            once: true,
+          },
+        });
+      }
+    },
+    { scope: sectionRef }
+  );
 
   async function copyEmail() {
     try {
@@ -193,41 +221,30 @@ const Contact: React.FC = () => {
   };
 
   return (
-    <section id="contact" className={sectionShell}>
+    <section
+      ref={sectionRef}
+      id="contact"
+      className={cn('contact-section relative overflow-hidden', sectionShell)}
+    >
+      <div className={sectionParallaxBg} aria-hidden />
       <div className="container relative z-10 mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-        <motion.h2
+        <h2
           className={cn(
             sectionTitleMargin,
-            'text-center font-display text-3xl font-normal md:text-4xl'
+            'section-heading text-center font-display text-3xl font-normal md:text-4xl'
           )}
-          initial={{ opacity: 0, x: -20 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={viewportOnce}
-          transition={{ duration: 0.65, ease: motionEase }}
         >
           <span className="relative inline-block">
             Get in Touch
-            <span className="absolute bottom-0 left-0 h-1 w-full origin-left bg-accent-2" />
+            <span className="heading-underline absolute bottom-0 left-0 h-1 w-full origin-left bg-accent-2" />
           </span>
-        </motion.h2>
+        </h2>
 
-        <motion.p
-          className="mx-auto mb-6 max-w-lg text-center font-dm text-muted"
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={viewportOnce}
-          transition={{ duration: 0.65, ease: motionEase, delay: 0.06 }}
-        >
+        <p className="mx-auto mb-6 max-w-lg text-center font-dm text-muted">
           {CONTACT_INTRO}
-        </motion.p>
+        </p>
 
-        <motion.div
-          className="mx-auto mb-8 max-w-2xl rounded-2xl border border-border bg-surface/80 p-8 shadow-xl backdrop-blur-md"
-          initial={{ opacity: 0, y: 32 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={viewportOnce}
-          transition={{ duration: 0.7, ease: motionEase, delay: 0.08 }}
-        >
+        <div className="contact-form mx-auto mb-8 max-w-2xl rounded-2xl border border-border bg-surface/80 p-8 shadow-xl backdrop-blur-md">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="relative">
               <label
@@ -356,7 +373,7 @@ const Contact: React.FC = () => {
               </div>
             ) : null}
           </form>
-        </motion.div>
+        </div>
 
         <motion.div
           className="mx-auto max-w-xl rounded-2xl border border-border bg-surface/80 p-8 backdrop-blur-md"

@@ -44,7 +44,7 @@ const ExtraCurriculars: React.FC = () => {
       )}
     >
       <div className={sectionParallaxBg} aria-hidden />
-      <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="relative z-10 container mx-auto max-w-site px-4 sm:px-6 lg:px-8">
         <h2
           className={cn(
             sectionTitleMargin,
@@ -57,7 +57,7 @@ const ExtraCurriculars: React.FC = () => {
           </span>
         </h2>
 
-        <div className="mx-auto w-full max-w-7xl">
+        <div className="mx-auto w-full max-w-site">
           <div className="grid grid-cols-1 gap-6 sm:gap-7 md:grid-cols-3 md:gap-8 lg:gap-10">
             <div className="extra-card flex min-h-full flex-col rounded-xl border border-border bg-surface p-7 text-center shadow-sm sm:p-8 md:p-9">
               <div className="mb-4 flex justify-center">

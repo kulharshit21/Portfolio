@@ -132,7 +132,7 @@ const Hero: React.FC = () => {
     <section
       id="home"
       onMouseMove={onHeroMouseMove}
-      className="group/hero relative isolate min-h-screen scroll-mt-24 overflow-hidden bg-bg py-16 font-dm text-foreground md:scroll-mt-28 md:py-20"
+      className="group/hero relative isolate min-h-[100svh] min-h-screen scroll-mt-24 overflow-hidden bg-bg py-12 font-dm text-foreground sm:py-16 md:scroll-mt-28 md:py-20"
       aria-label="Hero section"
     >
       <HeroParticleCanvas mouse={particleMouse} />
@@ -197,7 +197,7 @@ const Hero: React.FC = () => {
         Skip to main content
       </a>
 
-      <div className="relative z-10 container mx-auto flex min-h-[calc(100vh-6rem)] max-w-7xl flex-col px-4 sm:px-6 lg:px-8">
+      <div className="relative z-10 container mx-auto flex min-h-[calc(100svh-6rem)] min-h-[calc(100vh-6rem)] max-w-site flex-col px-4 sm:px-6 lg:px-8 3xl:px-10">
         <div className="grid flex-1 grid-cols-1 items-center gap-8 lg:grid-cols-[minmax(0,1.02fr)_minmax(0,0.98fr)] lg:gap-8 xl:gap-10">
           <div className="min-w-0">
             <div className="flex gap-5 md:gap-6">
@@ -292,7 +292,7 @@ const Hero: React.FC = () => {
           viewport={viewportOnce}
           transition={{ duration: 0.7, ease: motionEase }}
         >
-          <div className="rounded-2xl border border-border bg-surface/80 p-8 backdrop-blur-md">
+          <div className="rounded-2xl border border-border bg-surface/80 p-6 backdrop-blur-md sm:p-8">
             <h2 className="mb-6 text-center font-display text-2xl font-normal text-foreground">
               <span className="relative inline-block">
                 About Me

@@ -35,7 +35,7 @@ const About: React.FC = () => {
       ref={sectionRef}
       className="py-24 bg-white opacity-0"
     >
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="container mx-auto max-w-site px-4 sm:px-6 lg:px-8">
         <div className="max-w-3xl mx-auto">
           <h2 className="text-3xl font-bold text-center mb-12 text-slate-800">
             <span className="relative inline-block">

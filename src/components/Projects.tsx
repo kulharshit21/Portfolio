@@ -162,7 +162,7 @@ const Projects: React.FC = () => {
       )}
     >
       <div className={sectionParallaxBg} aria-hidden />
-      <div className="relative z-10 container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="relative z-10 container mx-auto max-w-site px-4 sm:px-6 lg:px-8">
         <div className={sectionTitleMargin}>
           <h2 className="section-heading font-display text-3xl font-normal md:text-4xl">
             <span className="relative inline-block">

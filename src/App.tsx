@@ -46,11 +46,19 @@ function AppContent() {
     snap();
     lenis.on('scroll', ScrollTrigger.update);
     let rafId = 0;
-    function raf(time: number) {
+    function rafLoop(time: number) {
       lenis.raf(time);
-      rafId = requestAnimationFrame(raf);
+      rafId = requestAnimationFrame(rafLoop);
     }
-    rafId = requestAnimationFrame(raf);
+    function startRaf() {
+      if (rafId) return;
+      rafId = requestAnimationFrame(rafLoop);
+    }
+    function stopRaf() {
+      cancelAnimationFrame(rafId);
+      rafId = 0;
+    }
+    startRaf();
 
     queueMicrotask(snap);
     requestAnimationFrame(() => {
@@ -68,17 +76,33 @@ function AppContent() {
     function onPageShow(e: PageTransitionEvent) {
       if (e.persisted) snap();
     }
+    function onVisibility() {
+      if (document.hidden) stopRaf();
+      else {
+        ScrollTrigger.refresh();
+        snap();
+        startRaf();
+      }
+    }
     window.addEventListener('load', onLoad, { once: true });
     window.addEventListener('pageshow', onPageShow);
+    document.addEventListener('visibilitychange', onVisibility);
 
+    let resizeTimer = 0;
     function onResize() {
-      ScrollTrigger.refresh();
+      window.clearTimeout(resizeTimer);
+      resizeTimer = window.setTimeout(() => {
+        ScrollTrigger.refresh();
+        snap();
+      }, 160);
     }
     window.addEventListener('resize', onResize, { passive: true });
     return () => {
-      cancelAnimationFrame(rafId);
+      window.clearTimeout(resizeTimer);
+      stopRaf();
       window.removeEventListener('load', onLoad);
       window.removeEventListener('pageshow', onPageShow);
+      document.removeEventListener('visibilitychange', onVisibility);
       window.removeEventListener('resize', onResize);
       setLenisInstance(null);
       lenis.destroy();
@@ -128,16 +152,11 @@ function AppContent() {
   }, []);
 
   return (
-    <div className="relative isolate min-h-screen font-dm text-foreground">
-      <div className="ambient-orbs" aria-hidden>
-        <div className="ambient-orb ambient-orb--1" />
-        <div className="ambient-orb ambient-orb--2" />
-        <div className="ambient-orb ambient-orb--3" />
-      </div>
+    <div className="relative min-h-[100svh] min-h-screen font-dm text-foreground">
       <GlobalCursor />
       <ScrollProgress />
       <Navbar />
-      <main className="relative z-10 pt-20 md:pt-24">
+      <main className="relative z-10 pt-20 pb-[env(safe-area-inset-bottom,0px)] md:pt-24">
         <Hero />
         <Suspense fallback={<SectionFallback />}>
           <BelowFold />

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   Menu,
@@ -17,22 +17,35 @@ import {
 } from 'lucide-react';
 import { motionEase, cn } from '../lib/utils';
 
-const navItems = [
+type NavItem = {
+  label: string;
+  /** Shorter text for the desktop pill (avoids wrap); falls back to `label`. */
+  navShort?: string;
+  target: string;
+  Icon: typeof Home;
+};
+
+const navItems: readonly NavItem[] = [
   { label: 'Home', target: '#home', Icon: Home },
   { label: 'Skills', target: '#skills', Icon: Layers },
   { label: 'Projects', target: '#projects', Icon: FolderKanban },
   { label: 'Experience', target: '#experience', Icon: Briefcase },
-  { label: 'Certificates', target: '#certifications', Icon: BadgeCheck },
+  {
+    label: 'Certificates',
+    navShort: 'Certs',
+    target: '#certifications',
+    Icon: BadgeCheck,
+  },
   { label: 'Education', target: '#education', Icon: GraduationCap },
   { label: 'Publications', target: '#publications', Icon: BookOpen },
   {
-    label: 'Extra-Curriculars',
+    label: 'Activities',
     target: '#extra-curriculars',
     Icon: Trophy,
   },
   { label: 'References', target: '#references', Icon: BookMarked },
   { label: 'Contact', target: '#contact', Icon: Mail },
-] as const;
+];
 
 /** IDs in scroll order; scroll-spy picks the last one whose top we've passed. */
 const NAV_SECTION_IDS = navItems.map((item) =>
@@ -52,6 +65,7 @@ const resumeUrl =
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
+  const scrollRaf = useRef(0);
 
   const toggleMenu = () => setIsOpen((o) => !o);
 
@@ -67,15 +81,26 @@ const Navbar: React.FC = () => {
     setActiveSection((prev) => (prev === current ? prev : current));
   }, []);
 
+  const scheduleActiveFromScroll = useCallback(() => {
+    if (scrollRaf.current) return;
+    scrollRaf.current = requestAnimationFrame(() => {
+      scrollRaf.current = 0;
+      updateActiveFromScroll();
+    });
+  }, [updateActiveFromScroll]);
+
   useEffect(() => {
     updateActiveFromScroll();
-    window.addEventListener('scroll', updateActiveFromScroll, { passive: true });
-    window.addEventListener('resize', updateActiveFromScroll, { passive: true });
+    window.addEventListener('scroll', scheduleActiveFromScroll, {
+      passive: true,
+    });
+    window.addEventListener('resize', scheduleActiveFromScroll, { passive: true });
     return () => {
-      window.removeEventListener('scroll', updateActiveFromScroll);
-      window.removeEventListener('resize', updateActiveFromScroll);
+      if (scrollRaf.current) cancelAnimationFrame(scrollRaf.current);
+      window.removeEventListener('scroll', scheduleActiveFromScroll);
+      window.removeEventListener('resize', scheduleActiveFromScroll);
     };
-  }, [updateActiveFromScroll]);
+  }, [scheduleActiveFromScroll, updateActiveFromScroll]);
 
   const scrollToSection = useCallback(
     (target: string) => {
@@ -127,14 +152,14 @@ const Navbar: React.FC = () => {
       <header className="fixed left-0 right-0 top-0 z-40 flex justify-center pt-4 md:pt-6 pointer-events-none">
         <nav
           data-site-nav
-          className="pointer-events-auto flex w-[calc(100%-1.5rem)] max-w-5xl items-center justify-between gap-3 rounded-full border border-border/80 bg-surface/75 px-3 py-2 shadow-xl backdrop-blur-xl md:px-4 md:py-2.5"
+          className="pointer-events-auto flex w-[calc(100%-1rem)] max-w-[min(100rem,calc(100vw-1rem))] items-center gap-2 rounded-full border border-border/80 bg-surface/80 px-2 py-2 shadow-xl backdrop-blur-xl sm:gap-2.5 sm:px-3 md:py-2.5 lg:gap-3 lg:px-4"
           aria-label="Main navigation"
         >
           <motion.a
             href="#home"
             whileHover={{ scale: 1.02 }}
             transition={{ duration: 0.2 }}
-            className="shrink-0 pl-2 font-display text-lg text-foreground md:text-xl"
+            className="shrink-0 pl-1.5 font-display text-base text-foreground sm:text-lg md:text-xl"
             onClick={(e) => {
               e.preventDefault();
               scrollToSection('#home');
@@ -143,21 +168,23 @@ const Navbar: React.FC = () => {
             Portfolio<span className="text-accent-2">.</span>
           </motion.a>
 
-          <ul className="hidden flex-1 items-center justify-center gap-0.5 md:flex lg:gap-1">
+          <ul className="hidden min-h-[2.5rem] min-w-0 flex-1 flex-nowrap items-center justify-center gap-0.5 md:flex md:justify-center lg:gap-1">
             {navItems.map((item) => {
               const active =
                 activeSection === item.target.replace('#', '');
+              const linkText = item.navShort ?? item.label;
               return (
-                <li key={item.label}>
+                <li key={item.target} className="shrink-0">
                   <motion.a
                     href={item.target}
                     whileHover={{ y: -2 }}
                     transition={{ duration: 0.2, ease: 'easeOut' }}
                     className={cn(
-                      'flex items-center gap-1.5 rounded-full px-3 py-2 font-dm text-xs font-medium lg:px-3.5 lg:text-sm',
+                      'flex items-center gap-1.5 whitespace-nowrap rounded-full px-2 py-2 font-dm text-[11px] font-medium sm:px-2.5 sm:text-xs',
+                      'lg:gap-2 lg:px-2.5 lg:text-sm',
                       active
-                        ? 'bg-accent/15 text-accent'
-                        : 'text-muted hover:text-foreground'
+                        ? 'bg-accent-2/15 text-accent-2 shadow-[inset_0_0_0_1px_rgba(74,158,255,0.28)]'
+                        : 'text-foreground/75 hover:bg-border/50 hover:text-foreground'
                     )}
                     onClick={(e) => {
                       e.preventDefault();
@@ -165,22 +192,25 @@ const Navbar: React.FC = () => {
                     }}
                     title={item.label}
                   >
-                    <item.Icon className="h-3.5 w-3.5 shrink-0 opacity-80 lg:h-4 lg:w-4" />
-                    <span className="hidden lg:inline">{item.label}</span>
+                    <item.Icon
+                      className="h-3.5 w-3.5 shrink-0 opacity-90 lg:h-4 lg:w-4"
+                      strokeWidth={2}
+                    />
+                    <span className="hidden lg:inline">{linkText}</span>
                   </motion.a>
                 </li>
               );
             })}
           </ul>
 
-          <div className="flex shrink-0 items-center gap-2 pr-1">
+          <div className="flex shrink-0 items-center gap-1.5 pr-0.5 sm:gap-2 sm:pr-1">
             <motion.a
               href={resumeUrl}
               target="_blank"
               rel="noopener noreferrer"
               whileHover={{ scale: 1.04 }}
               transition={{ duration: 0.2 }}
-              className="hidden items-center gap-1.5 rounded-full border border-accent/40 bg-gradient-to-br from-accent/25 to-accent-2/20 px-3 py-2 font-dm text-xs font-semibold text-foreground shadow-md md:inline-flex"
+              className="hidden items-center gap-1.5 whitespace-nowrap rounded-full border border-accent-2/35 bg-gradient-to-br from-accent-2/15 to-accent/10 px-2.5 py-2 font-dm text-xs font-semibold text-foreground shadow-md sm:inline-flex sm:px-3"
               title="Harshit Kulkarni – View Resume"
               aria-label="View Resume (opens in new tab)"
             >
@@ -245,7 +275,7 @@ const Navbar: React.FC = () => {
                     className={cn(
                       'flex items-center gap-3 rounded-xl px-4 py-3.5 font-dm text-base font-medium',
                       active
-                        ? 'bg-accent/15 text-accent'
+                        ? 'bg-accent-2/15 text-accent-2 shadow-[inset_0_0_0_1px_rgba(74,158,255,0.22)]'
                         : 'text-foreground hover:bg-border/60'
                     )}
                     onClick={(e) => {

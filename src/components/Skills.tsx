@@ -111,7 +111,7 @@ const Skills: React.FC = () => {
       )}
     >
       <div className={sectionParallaxBg} aria-hidden />
-      <div className="relative z-10 container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="relative z-10 container mx-auto max-w-site px-4 sm:px-6 lg:px-8">
         <div className={cn(sectionTitleMargin, 'text-center md:text-left')}>
           <h2 className="section-heading font-display text-[2.0625rem] font-normal md:text-[2.475rem]">
             <span className="relative inline-block">

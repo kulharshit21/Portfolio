@@ -41,7 +41,7 @@ const References: React.FC = () => {
       className={cn('references-section relative overflow-hidden', sectionShell)}
     >
       <div className={sectionParallaxBg} aria-hidden />
-      <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="relative z-10 container mx-auto max-w-site px-4 sm:px-6 lg:px-8">
         <h2
           className={cn(
             sectionTitleMargin,

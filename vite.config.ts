@@ -5,9 +5,13 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   plugins: [react()],
   build: {
+    target: 'es2020',
     rollupOptions: {
       output: {
         manualChunks(id) {
+          if (id.includes('node_modules/three') || id.includes('@react-three'))
+            return 'three';
+          if (id.includes('node_modules/gsap')) return 'gsap';
           if (id.includes('node_modules/framer-motion')) return 'framer';
           if (id.includes('node_modules/lucide-react')) return 'icons';
         },
@@ -15,9 +19,7 @@ export default defineConfig({
     },
     cssCodeSplit: true,
     sourcemap: false,
-  },
-  optimizeDeps: {
-    exclude: ['lucide-react'],
+    chunkSizeWarningLimit: 700,
   },
   server: {
     proxy: {

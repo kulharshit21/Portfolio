@@ -111,48 +111,56 @@ const Certifications: React.FC = () => {
       }
 
       gsap.set(cards, {
-        rotateY: 88,
-        opacity: 0,
         transformPerspective: 800,
+        transformOrigin: 'center center',
       });
-
-      const tl = gsap.timeline({ paused: true });
 
       cards.forEach((card, i) => {
-        tl.to(
-          card,
-          {
-            rotateY: 0,
-            opacity: 1,
-            ease: 'none',
-            duration: 1,
+        const fromRY = i % 2 === 0 ? -68 : 68;
+        gsap.set(card, {
+          rotateY: fromRY,
+          opacity: 0,
+          force3D: true,
+        });
+
+        ScrollTrigger.create({
+          trigger: card,
+          start: 'top bottom',
+          end: 'bottom top',
+          onEnter: () => {
+            gsap.fromTo(
+              card,
+              { rotateY: fromRY, opacity: 0, force3D: true },
+              {
+                rotateY: 0,
+                opacity: 1,
+                duration: 0.75,
+                ease: 'power3.out',
+                transformPerspective: 800,
+                overwrite: 'auto',
+              }
+            );
           },
-          i * 0.42
-        );
+          onEnterBack: () => {
+            gsap.killTweensOf(card);
+            gsap.set(card, {
+              rotateY: 0,
+              opacity: 1,
+              force3D: true,
+            });
+          },
+          onLeaveBack: () => {
+            gsap.killTweensOf(card);
+            gsap.set(card, {
+              rotateY: fromRY,
+              opacity: 0,
+              force3D: true,
+            });
+          },
+        });
       });
 
-      let peakProgress = 0;
-
-      ScrollTrigger.create({
-        trigger: section,
-        start: 'top 78%',
-        end: 'bottom 22%',
-        invalidateOnRefresh: true,
-        onUpdate: (self) => {
-          peakProgress = Math.max(peakProgress, self.progress);
-          tl.progress(peakProgress);
-        },
-        onLeaveBack: () => {
-          peakProgress = 0;
-          tl.progress(0);
-          gsap.set(cards, {
-            rotateY: 88,
-            opacity: 0,
-            transformPerspective: 800,
-          });
-        },
-      });
-    },
+      ScrollTrigger.refresh();    },
     { scope: sectionRef }
   );
 
@@ -160,10 +168,10 @@ const Certifications: React.FC = () => {
     <section
       ref={sectionRef}
       id="certifications"
-      className={cn('certs-section relative overflow-hidden', sectionShell)}
+      className={cn('certs-section relative overflow-x-hidden', sectionShell)}
     >
       <div className={sectionParallaxBg} aria-hidden />
-      <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="relative z-10 container mx-auto max-w-site px-4 sm:px-6 lg:px-8">
         <h2
           className={cn(
             sectionTitleMargin,
@@ -178,10 +186,11 @@ const Certifications: React.FC = () => {
 
         <div className="mx-auto max-w-5xl [perspective:800px]">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            {certifications.map((cert) => (
+            {certifications.map((cert, i) => (
               <article
                 key={cert.id}
-                className="cert-card glass-card flex flex-col rounded-xl p-5 [transform-style:preserve-3d]"
+                className="cert-card glass-card relative flex flex-col rounded-xl p-5 [transform-style:preserve-3d]"
+                style={{ zIndex: i + 1 }}
               >
                 <div className="mb-4 flex items-center gap-3 border-b border-border/80 pb-4">
                   <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-border/60 bg-bg/60 p-2">

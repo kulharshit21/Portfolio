@@ -5,7 +5,7 @@ import { Github, Linkedin } from 'lucide-react';
 const Footer: React.FC = () => {
   return (
     <footer className="relative z-10 border-t border-border bg-surface py-6 text-foreground">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="container mx-auto max-w-site px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-6xl">
           <p className="mb-3 text-center font-dm text-sm text-muted">
             &copy; {new Date().getFullYear()} Harshit Kulkarni. All rights reserved.

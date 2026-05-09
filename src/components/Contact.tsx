@@ -227,7 +227,7 @@ const Contact: React.FC = () => {
       className={cn('contact-section relative overflow-hidden', sectionShell)}
     >
       <div className={sectionParallaxBg} aria-hidden />
-      <div className="container relative z-10 mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+      <div className="container relative z-10 mx-auto max-w-site px-4 sm:px-6 lg:px-8">
         <h2
           className={cn(
             sectionTitleMargin,
@@ -244,7 +244,7 @@ const Contact: React.FC = () => {
           {CONTACT_INTRO}
         </p>
 
-        <div className="contact-form mx-auto mb-8 max-w-2xl rounded-2xl border border-border bg-surface/80 p-8 shadow-xl backdrop-blur-md">
+        <div className="contact-form mx-auto mb-8 max-w-2xl rounded-2xl border border-border bg-surface/80 p-6 shadow-xl backdrop-blur-md sm:p-8">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="relative">
               <label

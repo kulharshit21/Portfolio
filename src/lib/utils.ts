@@ -9,7 +9,7 @@ export const motionEase = [0.22, 1, 0.36, 1] as const;
 
 /** Shared layout: fixed nav offset + tighter vertical rhythm. Transparent so global ambient bg shows through. */
 export const sectionShell =
-  'relative scroll-mt-24 py-12 text-foreground md:scroll-mt-28 md:py-14';
+  'relative scroll-mt-24 py-10 text-foreground sm:py-12 md:scroll-mt-28 md:py-14';
 
 export const sectionTitleMargin = 'mb-6 md:mb-7';
 

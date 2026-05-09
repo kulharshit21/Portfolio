@@ -3,6 +3,12 @@ export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
+      screens: {
+        '3xl': '1920px',
+      },
+      maxWidth: {
+        site: 'min(90rem, calc(100vw - 2rem))',
+      },
       colors: {
         bg: '#0a0a0a',
         surface: '#111111',

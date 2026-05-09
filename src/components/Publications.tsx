@@ -80,22 +80,35 @@ const Publications: React.FC = () => {
       );
 
       cards.forEach((card, i) => {
-        const x = i % 2 === 0 ? -48 : 48;
-        gsap.set(card, { x, opacity: 0 });
+        // Even: from left → center. Odd: from right → center.
+        const fromX = i % 2 === 0 ? -120 : 120;
+        gsap.set(card, { x: fromX, opacity: 0, force3D: true });
 
         ScrollTrigger.create({
           trigger: card,
           start: 'top bottom',
           end: 'bottom top',
-          onToggle: (self) => {
-            if (!self.isActive) return;
-            gsap.to(card, {
-              x: 0,
-              opacity: 1,
-              duration: 0.55,
-              ease: 'power3.out',
-              overwrite: 'auto',
-            });
+          onEnter: () => {
+            gsap.fromTo(
+              card,
+              { x: fromX, opacity: 0, force3D: true },
+              {
+                x: 0,
+                opacity: 1,
+                duration: 0.75,
+                ease: 'power3.out',
+                force3D: true,
+                overwrite: 'auto',
+              }
+            );
+          },
+          onEnterBack: () => {
+            gsap.killTweensOf(card);
+            gsap.set(card, { x: 0, opacity: 1, force3D: true });
+          },
+          onLeaveBack: () => {
+            gsap.killTweensOf(card);
+            gsap.set(card, { x: fromX, opacity: 0, force3D: true });
           },
         });
       });
@@ -130,7 +143,7 @@ const Publications: React.FC = () => {
       )}
     >
       <div className={sectionParallaxBg} aria-hidden />
-      <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="relative z-10 container mx-auto max-w-site px-4 sm:px-6 lg:px-8">
         <div className={cn(sectionTitleMargin, 'text-center md:text-left')}>
           <h2 className="section-heading font-display text-3xl font-normal md:text-4xl">
             <span className="relative inline-block">
